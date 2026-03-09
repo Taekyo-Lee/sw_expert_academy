@@ -1,5 +1,5 @@
 # SW Expert Academy
-
+Hello Claude Code! You only need to care about Claude Code — ignore other agent platforms (e.g., Gemini CLI, Roo Code).
 Solve coding problems from SW Expert Academy using Python 3.7 (PyPy 3.7).
 Supports both https://swexpertacademy.com/ (home, ID/PW login) and https://swexpertacademy.samsung.com/ (company, SSO login). Set `SWEA_BASE_URL` in `.env` to choose. The company mirror uses alphanumeric problem IDs with a difficulty prefix (e.g., `VH1234`, `H1234`, `MH1234`) instead of plain numbers.
 
@@ -18,11 +18,14 @@ Supports both https://swexpertacademy.com/ (home, ID/PW login) and https://swexp
 
 ## Prerequisites
 
+- **`.env` file** — Copy `env.example` to `.env` and fill in `SWEA_BASE_URL`, `SWEA_ID`, and `SWEA_PW`. Required by `fetching-problem` and `submitting-solution`.
 - **Playwright MCP** — Required by `fetching-problem`, `submitting-solution`, and `solving-problem --auto`. Enable the Playwright plugin in `~/.claude/settings.json` (`"playwright@claude-plugins-official": true`) and restart Claude Code.
 
 ## Project layout
 
 ```
+.env                                    # Credentials (git-ignored)
+env.example                             # Template for .env
 problem_bank/{problem_id}/
   problem.md                          # Problem statement
   progress.md                         # Solve loop progress log
