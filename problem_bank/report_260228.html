@@ -1,0 +1,1821 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SWEA 문제 풀이 리포트 — Context Engineering</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Noto+Sans+KR:wght@300;400;500;700;900&family=Playfair+Display:ital,wght@0,700;0,900;1,700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0a0f;
+  --bg-card: #12121a;
+  --bg-card-hover: #1a1a26;
+  --border: #1e1e2e;
+  --border-accent: #2a2a3e;
+  --text: #c8c8d8;
+  --text-muted: #6e6e8a;
+  --text-bright: #eeeef6;
+  --accent: #22d68a;
+  --accent-dim: #1a9e68;
+  --accent-glow: rgba(34, 214, 138, 0.15);
+  --red: #ff4d6a;
+  --red-dim: rgba(255, 77, 106, 0.15);
+  --orange: #ff9f43;
+  --orange-dim: rgba(255, 159, 67, 0.15);
+  --blue: #4d9fff;
+  --blue-dim: rgba(77, 159, 255, 0.15);
+  --purple: #a78bfa;
+  --purple-dim: rgba(167, 139, 250, 0.15);
+  --yellow: #fbbf24;
+  --yellow-dim: rgba(251, 191, 36, 0.15);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Noto Sans KR', sans-serif;
+  font-weight: 400;
+  line-height: 1.75;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+/* Noise texture overlay */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 9999;
+}
+
+.container {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+/* ── HERO ── */
+.hero {
+  padding: 6rem 0 4rem;
+  position: relative;
+}
+
+.hero::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 50%;
+  transform: translateX(-50%);
+  width: 600px; height: 600px;
+  background: radial-gradient(circle, rgba(34, 214, 138, 0.06) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 1rem;
+  border: 1px solid var(--border-accent);
+  border-radius: 100px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  letter-spacing: 0.05em;
+  margin-bottom: 2rem;
+  animation: fadeIn 0.8s ease;
+}
+
+.hero-badge .dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 8px var(--accent);
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+.hero h1 {
+  font-family: 'Playfair Display', serif;
+  font-weight: 900;
+  font-size: clamp(2.5rem, 5vw, 4rem);
+  color: var(--text-bright);
+  line-height: 1.15;
+  margin-bottom: 1.5rem;
+  animation: slideUp 0.6s ease;
+}
+
+.hero h1 em {
+  font-style: italic;
+  color: var(--accent);
+}
+
+.hero-subtitle {
+  font-size: 1.1rem;
+  color: var(--text-muted);
+  max-width: 600px;
+  animation: slideUp 0.6s ease 0.1s both;
+}
+
+.hero-meta {
+  display: flex;
+  gap: 2rem;
+  margin-top: 2.5rem;
+  flex-wrap: wrap;
+  animation: slideUp 0.6s ease 0.2s both;
+}
+
+.hero-meta-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.hero-meta-item .label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--text-muted);
+}
+
+.hero-meta-item .value {
+  font-weight: 500;
+  color: var(--text-bright);
+  font-size: 0.95rem;
+}
+
+/* ── SCORE BANNER ── */
+.score-banner {
+  margin: 3rem 0;
+  padding: 2rem;
+  background: linear-gradient(135deg, rgba(34, 214, 138, 0.08), rgba(34, 214, 138, 0.02));
+  border: 1px solid rgba(34, 214, 138, 0.2);
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  animation: slideUp 0.6s ease 0.3s both;
+}
+
+.score-number {
+  font-family: 'Playfair Display', serif;
+  font-size: 4rem;
+  font-weight: 900;
+  color: var(--accent);
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.score-number span {
+  font-size: 1.5rem;
+  color: var(--text-muted);
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 400;
+}
+
+.score-detail {
+  flex: 1;
+}
+
+.score-detail p {
+  color: var(--text);
+  font-size: 0.95rem;
+}
+
+.score-detail .highlight {
+  color: var(--accent);
+  font-weight: 500;
+}
+
+/* ── SECTION ── */
+section {
+  padding: 3rem 0;
+}
+
+.section-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: var(--accent);
+  margin-bottom: 0.75rem;
+}
+
+.section-title {
+  font-family: 'Playfair Display', serif;
+  font-weight: 700;
+  font-size: 2rem;
+  color: var(--text-bright);
+  margin-bottom: 1.5rem;
+  line-height: 1.3;
+}
+
+.section-desc {
+  color: var(--text);
+  font-size: 0.95rem;
+  max-width: 700px;
+  margin-bottom: 2rem;
+}
+
+/* ── ARCHITECTURE TIMELINE ── */
+.arch-timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  margin: 2rem 0;
+}
+
+.arch-card {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.75rem;
+  background: var(--bg-card);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.arch-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 4px; height: 100%;
+}
+
+.arch-card.fail::before { background: var(--red); }
+.arch-card.partial::before { background: var(--orange); }
+.arch-card.success::before { background: var(--accent); }
+
+.arch-card.success {
+  border-color: rgba(34, 214, 138, 0.3);
+  background: linear-gradient(135deg, var(--bg-card), rgba(34, 214, 138, 0.03));
+}
+
+.arch-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.arch-attempt {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.25rem 0.75rem;
+  border-radius: 100px;
+}
+
+.arch-card.fail .arch-attempt { background: var(--red-dim); color: var(--red); }
+.arch-card.partial .arch-attempt { background: var(--orange-dim); color: var(--orange); }
+.arch-card.success .arch-attempt { background: var(--accent-glow); color: var(--accent); }
+
+.arch-result {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.arch-title {
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: var(--text-bright);
+  margin-bottom: 0.5rem;
+}
+
+.arch-body {
+  font-size: 0.9rem;
+  color: var(--text);
+}
+
+.arch-tags {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  flex-wrap: wrap;
+}
+
+.arch-tag {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.65rem;
+  padding: 0.2rem 0.6rem;
+  border-radius: 4px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+}
+
+/* ── FLOW DIAGRAM ── */
+.flow-section {
+  margin: 3rem 0;
+  overflow-x: auto;
+}
+
+.flow-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+  min-width: 800px;
+}
+
+.flow-col {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.5rem;
+  background: var(--bg-card);
+}
+
+.flow-col-header {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 0.25rem;
+}
+
+.flow-col.fail .flow-col-header { color: var(--red); }
+.flow-col.partial .flow-col-header { color: var(--orange); }
+.flow-col.success .flow-col-header { color: var(--accent); }
+
+.flow-col-title {
+  font-weight: 700;
+  color: var(--text-bright);
+  font-size: 0.95rem;
+  margin-bottom: 1.25rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.flow-step {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.6rem 0;
+  font-size: 0.85rem;
+}
+
+.flow-step .icon {
+  width: 28px; height: 28px;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  flex-shrink: 0;
+}
+
+.flow-step.active .icon { background: var(--accent-glow); }
+.flow-step.error .icon { background: var(--red-dim); }
+
+.flow-arrow {
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  padding: 0.2rem 0;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.flow-result {
+  margin-top: 1rem;
+  padding: 0.75rem;
+  border-radius: 8px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem;
+  text-align: center;
+  font-weight: 600;
+}
+
+.flow-result.fail { background: var(--red-dim); color: var(--red); }
+.flow-result.partial { background: var(--orange-dim); color: var(--orange); }
+.flow-result.success { background: var(--accent-glow); color: var(--accent); }
+
+.flow-transfer {
+  margin-top: 1rem;
+  padding: 0.6rem;
+  border-radius: 8px;
+  border: 1px dashed var(--border-accent);
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+/* ── CONTEXT ENGINEERING ── */
+.principle-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+  margin: 2rem 0;
+}
+
+.principle-card {
+  padding: 1.5rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  transition: border-color 0.3s ease;
+}
+
+.principle-card:hover {
+  border-color: var(--border-accent);
+}
+
+.principle-icon {
+  font-size: 1.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.principle-name {
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--text-bright);
+  margin-bottom: 0.4rem;
+}
+
+.principle-desc {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.principle-apply {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.72rem;
+  color: var(--accent-dim);
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--border);
+}
+
+/* ── SKILLS LIST ── */
+.skills-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.skill-item {
+  padding: 1.25rem 1.5rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  transition: border-color 0.3s ease;
+}
+
+.skill-item:hover { border-color: var(--border-accent); }
+
+.skill-item.supervisor {
+  border-color: rgba(167, 139, 250, 0.3);
+  background: linear-gradient(135deg, var(--bg-card), rgba(167, 139, 250, 0.04));
+}
+
+.skill-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.6rem;
+}
+
+.skill-icon { font-size: 1.1rem; }
+
+.skill-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.skill-name {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-bright);
+}
+
+.skill-role {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.65rem;
+  padding: 0.15rem 0.5rem;
+  border-radius: 4px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+}
+
+.skill-item.supervisor .skill-role {
+  background: var(--purple-dim);
+  color: var(--purple);
+  border-color: rgba(167, 139, 250, 0.3);
+}
+
+.skill-desc {
+  font-size: 0.85rem;
+  color: var(--text);
+  line-height: 1.7;
+}
+
+.skill-desc code {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.78rem;
+  background: var(--bg);
+  padding: 0.12rem 0.4rem;
+  border-radius: 3px;
+  color: var(--accent);
+}
+
+/* ── BLOCKQUOTE ── */
+.insight-quote {
+  margin: 3rem 0;
+  padding: 2rem 2.5rem;
+  border-left: 3px solid var(--accent);
+  background: linear-gradient(90deg, var(--accent-glow), transparent);
+  border-radius: 0 12px 12px 0;
+}
+
+.insight-quote p {
+  font-size: 1.05rem;
+  color: var(--text-bright);
+  line-height: 1.8;
+}
+
+.insight-quote .em {
+  color: var(--accent);
+  font-weight: 500;
+}
+
+/* ── RESULTS TABLE ── */
+.results-table-wrap {
+  overflow-x: auto;
+  margin: 2rem 0;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+
+thead th {
+  background: var(--bg-card);
+  padding: 1rem;
+  text-align: left;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+  font-weight: 500;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+
+tbody td {
+  padding: 0.9rem 1rem;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+
+tbody tr:last-child td { border-bottom: none; }
+
+tbody tr:hover { background: var(--bg-card); }
+
+.problem-id {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 600;
+  color: var(--blue);
+  font-size: 0.85rem;
+}
+
+.diff-badge {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.65rem;
+  font-weight: 600;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+
+.diff-d7 { background: var(--red-dim); color: var(--red); }
+.diff-d6 { background: var(--orange-dim); color: var(--orange); }
+
+.pass-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--accent);
+  background: var(--accent-glow);
+  padding: 0.25rem 0.6rem;
+  border-radius: 4px;
+}
+
+.accuracy {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.8rem;
+}
+
+/* ── PROBLEM DETAIL ── */
+.problem-section {
+  margin: 2rem 0;
+  padding: 2rem;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: var(--bg-card);
+}
+
+.problem-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.problem-num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.problem-name {
+  font-weight: 700;
+  font-size: 1.25rem;
+  color: var(--text-bright);
+  margin-top: 0.25rem;
+}
+
+.problem-algo {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.72rem;
+  color: var(--purple);
+  background: var(--purple-dim);
+  padding: 0.3rem 0.75rem;
+  border-radius: 6px;
+  white-space: nowrap;
+  height: fit-content;
+}
+
+.problem-idea {
+  margin-bottom: 1.5rem;
+}
+
+.problem-idea h4 {
+  font-size: 0.8rem;
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 0.75rem;
+}
+
+.problem-idea ul {
+  list-style: none;
+  padding: 0;
+}
+
+.problem-idea li {
+  position: relative;
+  padding-left: 1.25rem;
+  margin-bottom: 0.4rem;
+  font-size: 0.88rem;
+  color: var(--text);
+}
+
+.problem-idea li::before {
+  content: '›';
+  position: absolute;
+  left: 0;
+  color: var(--accent-dim);
+  font-weight: 700;
+}
+
+.trial {
+  padding: 1rem 1.25rem;
+  border-radius: 10px;
+  margin-bottom: 0.75rem;
+  font-size: 0.85rem;
+}
+
+.trial.fail-trial {
+  background: rgba(255, 77, 106, 0.05);
+  border: 1px solid rgba(255, 77, 106, 0.15);
+}
+
+.trial.pass-trial {
+  background: rgba(34, 214, 138, 0.05);
+  border: 1px solid rgba(34, 214, 138, 0.15);
+}
+
+.trial-header {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 600;
+  font-size: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.trial.fail-trial .trial-header { color: var(--red); }
+.trial.pass-trial .trial-header { color: var(--accent); }
+
+.trial-cause {
+  color: var(--text-muted);
+  font-size: 0.82rem;
+}
+
+.trial-cause strong {
+  color: var(--text);
+  font-weight: 500;
+}
+
+/* ── ENV CONSTRAINTS ── */
+.constraint-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin: 1.5rem 0;
+}
+
+.constraint-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+
+.constraint-icon {
+  font-size: 1.2rem;
+  flex-shrink: 0;
+}
+
+.constraint-code {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.8rem;
+  color: var(--red);
+  background: var(--red-dim);
+  padding: 0.15rem 0.5rem;
+  border-radius: 4px;
+}
+
+.constraint-text {
+  font-size: 0.88rem;
+  color: var(--text);
+}
+
+/* ── FAILURE TYPES TABLE ── */
+.failure-grid {
+  display: grid;
+  gap: 1rem;
+  margin: 2rem 0;
+}
+
+.failure-row {
+  display: grid;
+  grid-template-columns: 100px 1fr 1fr 1fr;
+  gap: 1rem;
+  padding: 1.25rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  font-size: 0.85rem;
+  align-items: start;
+}
+
+.failure-type {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.failure-type.mle { background: var(--purple-dim); color: var(--purple); }
+.failure-type.wa { background: var(--orange-dim); color: var(--orange); }
+.failure-type.re { background: var(--red-dim); color: var(--red); }
+.failure-type.tle { background: var(--yellow-dim); color: var(--yellow); }
+
+.failure-label {
+  font-size: 0.7rem;
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 0.3rem;
+}
+
+.failure-value {
+  font-size: 0.82rem;
+  color: var(--text);
+}
+
+/* ── LESSON CARDS ── */
+.lesson-pair {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  margin: 2rem 0;
+}
+
+.lesson-card {
+  padding: 1.5rem;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+}
+
+.lesson-from-to {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  color: var(--accent);
+  margin-bottom: 0.5rem;
+}
+
+.lesson-title {
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--text-bright);
+  margin-bottom: 0.75rem;
+}
+
+.lesson-body {
+  font-size: 0.88rem;
+  color: var(--text);
+}
+
+/* ── FOOTER ── */
+.footer {
+  padding: 3rem 0;
+  margin-top: 2rem;
+  border-top: 1px solid var(--border);
+  text-align: center;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  letter-spacing: 0.05em;
+}
+
+/* ── ANIMATIONS ── */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.fade-in { animation: slideUp 0.6s ease both; }
+.delay-1 { animation-delay: 0.1s; }
+.delay-2 { animation-delay: 0.2s; }
+.delay-3 { animation-delay: 0.3s; }
+.delay-4 { animation-delay: 0.4s; }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 768px) {
+  .container { padding: 0 1.25rem; }
+  .hero { padding: 4rem 0 2rem; }
+  .score-banner { flex-direction: column; text-align: center; }
+  .principle-grid { grid-template-columns: 1fr; }
+  .lesson-pair { grid-template-columns: 1fr; }
+  .failure-row {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+  }
+  .flow-grid { min-width: 700px; }
+  .problem-header { flex-direction: column; }
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- HERO -->
+  <header class="hero">
+    <div class="hero-badge"><span class="dot"></span> 2026-02-25 — 2026-03-01 실험 리포트</div>
+    <h1>SW Expert Academy<br><em>Context Engineering</em><br>문제 풀이 리포트</h1>
+    <p class="hero-subtitle">
+      AI 에이전트의 아키텍처 구조가 동일한 모델의 성능을 어떻게 근본적으로 바꾸는지에 대한 실험 기록.
+    </p>
+    <div class="hero-meta">
+      <div class="hero-meta-item">
+        <span class="label">에이전트</span>
+        <span class="value">Claude Opus 4.6</span>
+      </div>
+      <div class="hero-meta-item">
+        <span class="label">Reasoning Effort</span>
+        <span class="value">High</span>
+      </div>
+      <div class="hero-meta-item">
+        <span class="label">제출 규칙</span>
+        <span class="value">문제당 최대 10회</span>
+      </div>
+      <div class="hero-meta-item">
+        <span class="label">플랫폼</span>
+        <span class="value">swexpertacademy.samsung.com</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- SCORE -->
+  <div class="score-banner">
+    <div class="score-number">10<span>/10</span></div>
+    <div class="score-detail">
+      <p>
+        D6–D7(Very High) 난이도 문제 <span class="highlight">전문제 통과</span>. 
+        정답률 4.49%인 D7(VH) 문제를 포함해, 세 번째 아키텍처에서 달성한 결과.
+        핵심은 모델이 아닌 <span class="highlight">컨텍스트 구조</span>의 변경.
+      </p>
+    </div>
+  </div>
+
+  <!-- ARCHITECTURE HISTORY -->
+  <section>
+    <div class="section-label">Architecture Evolution</div>
+    <h2 class="section-title">에이전트 아키텍처 실험 이력</h2>
+    <p class="section-desc">
+      세 번의 시도를 거쳐 최적의 아키텍처를 발견. 모델의 능력은 동일했으나, 
+      정보 전달 방식이 결과를 결정지었다.
+    </p>
+
+    <div class="arch-timeline">
+      <div class="arch-card fail fade-in">
+        <div class="arch-header">
+          <span class="arch-attempt">1차 시도</span>
+          <span class="arch-result">❌ 코드 생성 불가</span>
+        </div>
+        <div class="arch-title">단일 에이전트</div>
+        <div class="arch-body">
+          plan → write → reflect를 하나의 컨텍스트에서 수행. 
+          대화가 길어지면서 컨텍스트 부패(context rot) 발생 — 모델이 코드 생성 능력을 상실.
+        </div>
+        <div class="arch-tags">
+          <span class="arch-tag">Reasoning Effort: High</span>
+          <span class="arch-tag">단일 컨텍스트</span>
+          <span class="arch-tag">Context Rot</span>
+        </div>
+      </div>
+
+      <div class="arch-card partial fade-in delay-1">
+        <div class="arch-header">
+          <span class="arch-attempt">2차 시도</span>
+          <span class="arch-result">⚠ 4문제 중 1문제 통과</span>
+        </div>
+        <div class="arch-title">서브에이전트 분리 — 프롬프트 기반 전통 에이전트</div>
+        <div class="arch-body">
+          에이전트를 분리했으나, 각 에이전트는 <strong style="color:var(--text-bright)">프롬프트에 인스트럭션을 주입</strong>하는 전통적 방식으로 동작.
+          이전 에이전트의 출력을 요약하여 다음 에이전트 컨텍스트에 주입했고, 
+          요약 과정에서 알고리즘의 정교한 세부사항이 손실.
+        </div>
+        <div class="arch-tags">
+          <span class="arch-tag">Reasoning Effort: Medium</span>
+          <span class="arch-tag">프롬프트 인스트럭션</span>
+          <span class="arch-tag">요약 전달</span>
+          <span class="arch-tag">정보 손실</span>
+        </div>
+      </div>
+
+      <div class="arch-card success fade-in delay-2">
+        <div class="arch-header">
+          <span class="arch-attempt">3차 시도 ✓</span>
+          <span class="arch-result">✅ 10/10 전문제 통과</span>
+        </div>
+        <div class="arch-title">서브에이전트 완전 분리 — Claude Skills 기반 에이전트</div>
+        <div class="arch-body">
+          각 에이전트를 <strong style="color:var(--accent)">Claude Skills</strong>로 구현 — 프롬프트 인스트럭션이 아닌 
+          <strong style="color:var(--text-bright)">구조화된 SKILL.md 파일</strong>이 에이전트의 행동을 정의. 
+          <strong style="color:var(--purple)">solve_coding_test</strong> Skill이 Supervisor로서 서브에이전트를 오케스트레이션하고,
+          에이전트 간 통신도 마크다운 파일 기반으로 이루어져 컨텍스트 부패 원천 차단.
+        </div>
+        <div class="arch-tags">
+          <span class="arch-tag">Reasoning Effort: High</span>
+          <span class="arch-tag" style="background:var(--accent-glow);color:var(--accent);border-color:rgba(34,214,138,0.3)">Claude Skills</span>
+          <span class="arch-tag" style="background:var(--purple-dim);color:var(--purple);border-color:rgba(167,139,250,0.3)">Supervisor 패턴</span>
+          <span class="arch-tag">파일 기반 인터페이스</span>
+          <span class="arch-tag">컨텍스트 격리</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FLOW DIAGRAM -->
+  <section>
+    <div class="section-label">Agent Flow Comparison</div>
+    <h2 class="section-title">에이전트 동작 흐름</h2>
+
+    <div class="flow-section">
+      <div class="flow-grid">
+        <!-- Column 1: Single Agent -->
+        <div class="flow-col fail">
+          <div class="flow-col-header">1차 · Reasoning Effort: High</div>
+          <div class="flow-col-title">단일 에이전트</div>
+          <div class="flow-step"><span class="icon">🧩</span> 문제 수집</div>
+          <div class="flow-arrow">↓</div>
+          <div class="flow-step"><span class="icon">📝</span> 알고리즘 설계</div>
+          <div class="flow-arrow">↓</div>
+          <div class="flow-step"><span class="icon">💻</span> 코드 작성</div>
+          <div class="flow-arrow">↓</div>
+          <div class="flow-step"><span class="icon">🔍</span> 실패 분석</div>
+          <div class="flow-arrow">↓</div>
+          <div class="flow-step"><span class="icon">💻</span> 코드 재작성</div>
+          <div class="flow-arrow">↓ ... 반복</div>
+          <div class="flow-step error"><span class="icon">💀</span> 컨텍스트 부패</div>
+          <div class="flow-result fail">❌ 코드 생성 불가</div>
+          <div class="flow-transfer">정보 전달: 없음 (단일 컨텍스트)</div>
+        </div>
+
+        <!-- Column 2: Summary Transfer -->
+        <div class="flow-col partial">
+          <div class="flow-col-header">2차 · Reasoning Effort: Medium</div>
+          <div class="flow-col-title">프롬프트 기반 서브에이전트</div>
+          <div class="flow-step"><span class="icon">🧩</span> Problem Fetch 에이전트</div>
+          <div class="flow-arrow">↓ 요약 전달</div>
+          <div class="flow-step"><span class="icon">📝</span> Plan 에이전트</div>
+          <div class="flow-arrow">↓ 요약 전달</div>
+          <div class="flow-step"><span class="icon">💻</span> Write 에이전트</div>
+          <div class="flow-arrow">↓</div>
+          <div class="flow-step"><span class="icon">👤</span> 채점 <span style="font-size:0.7rem;color:var(--text-muted);font-family:'JetBrains Mono',monospace">(human)</span></div>
+          <div class="flow-arrow">통과? → ✅ &nbsp;|&nbsp; 실패? ↓</div>
+          <div class="flow-step"><span class="icon">🔍</span> Reflect 에이전트</div>
+          <div class="flow-arrow">↓ 실패 요약 전달</div>
+          <div class="flow-step"><span class="icon">💻</span> Write 에이전트 (재시도)</div>
+          <div class="flow-arrow">↑ 실패 시 반복 ──╮</div>
+          <div class="flow-step"><span class="icon">👤</span> 채점 (human) ──╯</div>
+          <div class="flow-result partial">⚠ 1/4 통과</div>
+          <div class="flow-transfer">에이전트 정의: 프롬프트 인스트럭션<br>정보 전달: 컨텍스트 내 요약 → 정보 손실</div>
+        </div>
+
+        <!-- Column 3: File-based -->
+        <div class="flow-col success">
+          <div class="flow-col-header">3차 · Reasoning Effort: High</div>
+          <div class="flow-col-title">Skills 기반 서브에이전트 ✅</div>
+          <div class="flow-step active" style="margin-bottom:0.5rem;padding:0.5rem 0.75rem;background:rgba(167,139,250,0.08);border:1px solid rgba(167,139,250,0.2);border-radius:8px;">
+            <span class="icon" style="background:var(--purple-dim)">🎛️</span>
+            <span style="font-size:0.82rem;"><strong style="color:var(--purple)">Supervisor</strong> <span style="font-family:'JetBrains Mono',monospace;font-size:0.7rem;color:var(--text-muted)">solve_coding_test</span></span>
+          </div>
+          <div class="flow-arrow">↓ 서브에이전트 오케스트레이션</div>
+          <div class="flow-step active"><span class="icon">🧩</span> Problem Fetch <span style="font-family:'JetBrains Mono',monospace;font-size:0.7rem;color:var(--text-muted);margin-left:0.3rem">get_coding_problem</span></div>
+          <div class="flow-arrow">↓ problem.md 저장</div>
+          <div class="flow-step active"><span class="icon">📝</span> Plan <span style="font-family:'JetBrains Mono',monospace;font-size:0.7rem;color:var(--text-muted);margin-left:0.3rem">plan_coding_problem</span></div>
+          <div class="flow-arrow">↓ plan.md 저장</div>
+          <div class="flow-step active"><span class="icon">💻</span> Write <span style="font-family:'JetBrains Mono',monospace;font-size:0.7rem;color:var(--text-muted);margin-left:0.3rem">write_coding_problem</span></div>
+          <div class="flow-arrow">↓ solution.py 저장</div>
+          <div class="flow-step active"><span class="icon">🛡️</span> Validate <span style="font-family:'JetBrains Mono',monospace;font-size:0.7rem;color:var(--text-muted);margin-left:0.3rem">validate_coding_problem</span></div>
+          <div class="flow-arrow">↓</div>
+          <div class="flow-step active"><span class="icon">👤</span> 채점 <span style="font-size:0.7rem;color:var(--text-muted);font-family:'JetBrains Mono',monospace">(human)</span></div>
+          <div class="flow-arrow">통과? → ✅ &nbsp;|&nbsp; 실패? ↓</div>
+          <div class="flow-step active"><span class="icon">🔍</span> Reflect <span style="font-family:'JetBrains Mono',monospace;font-size:0.7rem;color:var(--text-muted);margin-left:0.3rem">reflect_coding_problem</span></div>
+          <div class="flow-arrow">↓ plan.md 갱신</div>
+          <div class="flow-step active"><span class="icon">💻</span> Write (재시도) <span style="font-family:'JetBrains Mono',monospace;font-size:0.7rem;color:var(--text-muted);margin-left:0.3rem">write_coding_problem</span></div>
+          <div class="flow-arrow">↑ 실패 시 반복 ──╮</div>
+          <div class="flow-step active"><span class="icon">👤</span> 채점 (human) ──╯</div>
+          <div class="flow-result success">✅ 10/10 통과</div>
+          <div class="flow-transfer">에이전트 정의: Claude Skills (SKILL.md)<br>정보 전달: 독립 마크다운 파일 → 무손실</div>
+        </div>
+      </div>
+
+      <div style="margin-top:1.5rem;padding:1rem 1.25rem;border:1px dashed var(--border-accent);border-radius:10px;display:flex;align-items:center;gap:0.75rem;">
+        <span style="font-size:1.1rem;">👤</span>
+        <p style="font-size:0.82rem;color:var(--text-muted);margin:0;">
+          <span style="color:var(--text-bright);font-weight:500;">채점 단계는 현재 Human-in-the-Loop</span>으로 운영 중 — 
+          사람이 <a href="https://swexpertacademy.samsung.com" target="_blank" style="color:var(--blue);text-decoration:none;border-bottom:1px dashed var(--blue);">swexpertacademy.samsung.com</a>에서 직접 코드를 제출하고 채점 결과를 에이전트에 전달하는 방식.
+          <span style="color:var(--accent);">향후 자동 제출 및 결과 파싱 자동화 예정.</span>
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTEXT ENGINEERING -->
+  <section>
+    <div class="section-label">Context Engineering</div>
+    <h2 class="section-title">컨텍스트 엔지니어링</h2>
+    <p class="section-desc">
+      모델의 능력은 동일했지만, 모델에게 주어지는 컨텍스트의 구조를 바꾸는 것만으로 
+      0/4에서 10/10로 결과가 달라졌다. 결정적 전환점은 프롬프트 인스트럭션에서 
+      Claude Skills로의 전환이었다.
+    </p>
+
+    <div class="principle-grid" style="grid-template-columns: repeat(2, 1fr);">
+      <div class="principle-card fade-in">
+        <div class="principle-icon">🔒</div>
+        <div class="principle-name">컨텍스트 격리</div>
+        <div class="principle-desc">각 에이전트는 독립된 컨텍스트 윈도우를 가짐</div>
+        <div class="principle-apply">→ plan, write, validate, reflect 각각 별도 에이전트</div>
+      </div>
+      <div class="principle-card fade-in delay-1">
+        <div class="principle-icon">📄</div>
+        <div class="principle-name">파일 기반 인터페이스</div>
+        <div class="principle-desc">에이전트 간 통신은 구조화된 마크다운 파일로만 수행</div>
+        <div class="principle-apply">→ problem.md → plan.md → solution.py → validate → 채점</div>
+      </div>
+      <div class="principle-card fade-in delay-2">
+        <div class="principle-icon">✂️</div>
+        <div class="principle-name">최소 컨텍스트 원칙</div>
+        <div class="principle-desc">각 에이전트는 자신의 작업에 필요한 최소 정보만 수신</div>
+        <div class="principle-apply">→ write 에이전트는 plan.md만 읽고 코드 생성</div>
+      </div>
+      <div class="principle-card fade-in delay-3">
+        <div class="principle-icon">📖</div>
+        <div class="principle-name">명시적 지식 외재화</div>
+        <div class="principle-desc">암묵적 컨텍스트가 아닌 명시적 문서로 지식을 전달</div>
+        <div class="principle-apply">→ 요약 대신 원본 마크다운 파일 전달</div>
+      </div>
+      <div class="principle-card fade-in delay-4" style="grid-column: 1 / -1; border-color: rgba(34,214,138,0.3); background: linear-gradient(135deg, var(--bg-card), rgba(34,214,138,0.03));">
+        <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.75rem;">
+          <div class="principle-icon" style="margin:0;">⚡</div>
+          <div class="principle-name" style="margin:0;font-size:1.05rem;">Claude Skills = 컨텍스트 엔지니어링의 실현</div>
+        </div>
+        <div class="principle-desc" style="color:var(--text);max-width:none;">
+          프롬프트 인스트럭션으로 에이전트를 정의하면 인스트럭션 자체가 컨텍스트를 소비하고 오염시킨다.
+          <strong style="color:var(--accent)">Claude Skills</strong>는 에이전트의 행동 정의(SKILL.md)와 에이전트 간 데이터 전달을 
+          모두 구조화된 파일로 외재화하여, 위 네 가지 원칙을 자연스럽게 달성한다.
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:0.5rem;margin-top:1rem;padding-top:1rem;border-top:1px solid var(--border);">
+          <span class="arch-tag" style="background:var(--purple-dim);color:var(--purple);border-color:rgba(167,139,250,0.3)">🎛️ solve_coding_test (Supervisor)</span>
+          <span class="arch-tag">🧩 get_coding_problem</span>
+          <span class="arch-tag">📝 plan_coding_problem</span>
+          <span class="arch-tag">💻 write_coding_problem</span>
+          <span class="arch-tag">🛡️ validate_coding_problem</span>
+          <span class="arch-tag">🔍 reflect_coding_problem</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Skills Breakdown -->
+    <div style="margin-top:2.5rem;">
+      <h3 style="font-family:'JetBrains Mono',monospace;font-size:0.75rem;text-transform:uppercase;letter-spacing:0.12em;color:var(--accent);margin-bottom:1.25rem;">Skills Breakdown</h3>
+
+      <div style="margin-bottom:1.25rem;padding:1rem 1.25rem;border:1px solid var(--border-accent);border-radius:10px;background:var(--bg-card);font-size:0.83rem;color:var(--text);line-height:1.75;">
+        <strong style="color:var(--text-bright)">Skill이란?</strong> — 
+        각 에이전트가 <em>무엇을 해야 하는지</em> 정의한 구조화된 마크다운 파일(<code style="font-family:'JetBrains Mono',monospace;font-size:0.76rem;background:var(--bg);padding:0.1rem 0.35rem;border-radius:3px;color:var(--accent)">SKILL.md</code>). 
+        에이전트가 호출되면 해당 Skill의 내용이 그 에이전트의 컨텍스트에 주입되어 행동을 안내한다. 
+        프롬프트 인스트럭션과 달리 파일로 외재화되어 있어, 메인 대화 컨텍스트를 오염시키지 않는 것이 핵심.
+      </div>
+
+      <div class="skills-list">
+        <!-- Supervisor -->
+        <div class="skill-item supervisor">
+          <div class="skill-header">
+            <span class="skill-icon">🎛️</span>
+            <div class="skill-meta">
+              <span class="skill-name">solve_coding_test</span>
+              <span class="skill-role">Supervisor</span>
+            </div>
+          </div>
+          <div class="skill-desc">
+            전체 풀이 루프를 오케스트레이션하는 최상위 Skill. <code>problem.md</code>가 존재하는지 확인 후, 
+            trial 1부터 최대 10회까지 <strong>Plan → Write → Validate → 채점 대기 → Reflect</strong> 루프를 관리.
+            핵심 규칙: 모든 서브 Skill 호출은 반드시 <strong style="color:var(--purple)">fresh subagent(Task tool)</strong>로 디스패치 — 
+            이전 서브에이전트를 재사용하지 않고, 같은 Skill이라도 매 trial마다 새로운 에이전트를 생성하여 
+            메인 컨텍스트를 작게 유지. 채점은 사용자에게 제출을 요청한 뒤 판정(Pass/WA/TLE/MLE/RE)을 기다리는 human-in-the-loop 방식.
+          </div>
+        </div>
+
+        <!-- get_coding_problem -->
+        <div class="skill-item">
+          <div class="skill-header">
+            <span class="skill-icon">🧩</span>
+            <div class="skill-meta">
+              <span class="skill-name">get_coding_problem</span>
+              <span class="skill-role">Problem Fetch</span>
+            </div>
+          </div>
+          <div class="skill-desc">Playwright MCP로 SWEA 웹사이트에 접속해 문제 페이지를 탐색. 문제 설명, 입출력 형식, 제약 조건, 샘플 테스트 케이스를 추출하여 <code>problem.md</code>로 저장. 다음 에이전트는 이 파일만 읽으면 된다.</div>
+        </div>
+
+        <!-- plan_coding_problem -->
+        <div class="skill-item">
+          <div class="skill-header">
+            <span class="skill-icon">📝</span>
+            <div class="skill-meta">
+              <span class="skill-name">plan_coding_problem</span>
+              <span class="skill-role">Plan</span>
+            </div>
+          </div>
+          <div class="skill-desc"><code>problem.md</code>를 읽고 알고리즘을 설계. 코드는 절대 작성하지 않고, 문제 분석 → 핵심 관찰 → 알고리즘 선택 및 근거 → 의사코드 수준 구현 단계 → 엣지 케이스 → 복잡도 분석까지 사고 과정만 정리하여 <code>plan_{trial}.md</code>로 저장. PyPy 3.7 환경의 시간·메모리 제약을 고려해 실현 가능성까지 검증.</div>
+        </div>
+
+        <!-- write_coding_problem -->
+        <div class="skill-item">
+          <div class="skill-header">
+            <span class="skill-icon">💻</span>
+            <div class="skill-meta">
+              <span class="skill-name">write_coding_problem</span>
+              <span class="skill-role">Write</span>
+            </div>
+          </div>
+          <div class="skill-desc"><code>problem.md</code>와 <code>plan_{trial}.md</code>를 읽고 Python 3.7(PyPy) 코드를 구현. plan의 알고리즘을 충실히 따르되, SWEA I/O 패턴(<code>T = int(input())</code> 루프)에 맞춰 작성. 완성된 코드를 <code>solution_{trial}.py</code>로 저장한 뒤 샘플 테스트를 실행하여 통과할 때까지 수정·재테스트 반복.</div>
+        </div>
+
+        <!-- validate_coding_problem -->
+        <div class="skill-item">
+          <div class="skill-header">
+            <span class="skill-icon">🛡️</span>
+            <div class="skill-meta">
+              <span class="skill-name">validate_coding_problem</span>
+              <span class="skill-role">Validate</span>
+            </div>
+          </div>
+          <div class="skill-desc">Write 에이전트가 생성한 코드를 제출 전에 정적 검증. 금지된 import(<code>sys</code>, <code>io</code>, <code>os</code>), 출력 형식, Python 3.7 문법 호환성 등을 사전 체크하여 RE/WA를 제출 전에 차단. 3차 아키텍처에서 추가된 중간 단계.</div>
+        </div>
+
+        <!-- reflect_coding_problem -->
+        <div class="skill-item">
+          <div class="skill-header">
+            <span class="skill-icon">🔍</span>
+            <div class="skill-meta">
+              <span class="skill-name">reflect_coding_problem</span>
+              <span class="skill-role">Reflect</span>
+            </div>
+          </div>
+          <div class="skill-desc">채점 실패 시 발동. <code>problem.md</code>와 <strong>모든 이전 plan·solution 히스토리</strong>를 읽어 같은 실수를 반복하지 않도록 함. 판정 유형(WA/TLE/MLE/RE)에 따라 진단 초점을 달리하고, 무엇이 틀렸는지 → 왜 틀렸는지 → 이전 plan이 놓친 것을 분석하여 수정된 <code>plan_{next_trial}.md</code>를 생성. 코드는 작성하지 않음.</div>
+        </div>
+      </div>
+    </div>
+    <div class="lesson-pair">
+      <div class="lesson-card">
+        <div class="lesson-from-to">1차 → 2차 교훈</div>
+        <div class="lesson-title">"분리하라"</div>
+        <div class="lesson-body">
+          단일 에이전트의 실패 후 서브에이전트로 분리. 
+          프롬프트 인스트럭션으로 에이전트를 정의하고 요약으로 정보를 전달했으나, 
+          알고리즘의 정교한 세부사항이 손실됨.
+        </div>
+      </div>
+      <div class="lesson-card">
+        <div class="lesson-from-to">2차 → 3차 교훈</div>
+        <div class="lesson-title">"Skills로 전환하라"</div>
+        <div class="lesson-body">
+          프롬프트 인스트럭션을 <strong style="color:var(--accent)">Claude Skills(SKILL.md)</strong>로 대체.
+          에이전트의 행동 정의와 에이전트 간 정보 전달 모두 파일 기반으로 전환하여 
+          컨텍스트 부패와 정보 손실을 동시에 해결 — 컨텍스트 엔지니어링의 진수.
+        </div>
+      </div>
+    </div>
+
+    <div class="insight-quote">
+      <p>
+        <span class="em">프롬프트 엔지니어링</span>이 "모델에게 무엇을 말할 것인가"의 문제라면,<br>
+        <span class="em">컨텍스트 엔지니어링</span>은 "모델에게 어떤 구조로 정보를 제공할 것인가"의 문제다.<br><br>
+        프롬프트 인스트럭션으로 에이전트를 정의하면 인스트럭션 자체가 컨텍스트를 오염시킨다.
+        <span class="em">Claude Skills</span>는 에이전트의 행동 정의를 구조화된 파일로 외재화하여 
+        이 문제를 근본적으로 해결한다.<br><br>
+        같은 모델, 같은 문제, 같은 Reasoning Effort에서도 컨텍스트 구조만 바꾸면 결과가 근본적으로 달라진다.
+        D7(VH) 난이도 문제를 포함해 10/10 전문제 통과는 이 원칙의 실증.
+      </p>
+    </div>
+  </section>
+
+  <!-- RESULTS TABLE -->
+  <section>
+    <div class="section-label">Results Overview</div>
+    <h2 class="section-title">전체 결과 요약</h2>
+
+    <div class="results-table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>문제</th>
+            <th>제목</th>
+            <th>난이도</th>
+            <th>정답률 <span style="font-size:0.6rem;opacity:0.7;font-weight:400;letter-spacing:0.02em">(본 테스트 성공 반영)</span></th>
+            <th>제출</th>
+            <th>결과</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="problem-id">23009</span> <span style="font-family:'JetBrains Mono',monospace;font-size:0.7rem;color:var(--text-muted)">VH2505</span></td>
+            <td style="color:var(--text-bright)">연속하는 겹치는 구간의 수</td>
+            <td><span class="diff-badge diff-d7">D7 · VH</span></td>
+            <td class="accuracy">6.67%</td>
+            <td>2회</td>
+            <td><span class="pass-badge">✓ 통과</span></td>
+          </tr>
+          <tr>
+            <td><span class="problem-id">24424</span> <span style="font-family:'JetBrains Mono',monospace;font-size:0.7rem;color:var(--text-muted)">VH2521</span></td>
+            <td style="color:var(--text-bright)">올바른 경로</td>
+            <td><span class="diff-badge diff-d6">D6 · VH</span></td>
+            <td class="accuracy">23.53%</td>
+            <td>1회</td>
+            <td><span class="pass-badge">✓ 통과</span></td>
+          </tr>
+          <tr>
+            <td><span class="problem-id">24529</span> <span style="font-family:'JetBrains Mono',monospace;font-size:0.7rem;color:var(--text-muted)">VH2525</span></td>
+            <td style="color:var(--text-bright)">격자판 위의 달팽이</td>
+            <td><span class="diff-badge diff-d6">D6 · VH</span></td>
+            <td class="accuracy">7.69%</td>
+            <td>2회</td>
+            <td><span class="pass-badge">✓ 통과</span></td>
+          </tr>
+          <tr>
+            <td><span class="problem-id">24702</span> <span style="font-family:'JetBrains Mono',monospace;font-size:0.7rem;color:var(--text-muted)">VH2530</span></td>
+            <td style="color:var(--text-bright)">2의 거듭제곱</td>
+            <td><span class="diff-badge diff-d7">D7 · VH</span></td>
+            <td class="accuracy">30.00%</td>
+            <td>3회</td>
+            <td><span class="pass-badge">✓ 통과</span></td>
+          </tr>
+          <tr>
+            <td><span class="problem-id">25333</span> <span style="font-family:'JetBrains Mono',monospace;font-size:0.7rem;color:var(--text-muted)">VH2533</span></td>
+            <td style="color:var(--text-bright)">시너지 효과</td>
+            <td><span class="diff-badge diff-d7">D7 · VH</span></td>
+            <td class="accuracy">33.33%</td>
+            <td>2회</td>
+            <td><span class="pass-badge">✓ 통과</span></td>
+          </tr>
+          <tr>
+            <td><span class="problem-id">25478</span> <span style="font-family:'JetBrains Mono',monospace;font-size:0.7rem;color:var(--text-muted)">VH2537</span></td>
+            <td style="color:var(--text-bright)">수신기 배정</td>
+            <td><span class="diff-badge diff-d7">D7 · VH</span></td>
+            <td class="accuracy">7.41%</td>
+            <td>4회</td>
+            <td><span class="pass-badge">✓ 통과</span></td>
+          </tr>
+          <tr>
+            <td><span class="problem-id">25660</span> <span style="font-family:'JetBrains Mono',monospace;font-size:0.7rem;color:var(--text-muted)">VH2540</span></td>
+            <td style="color:var(--text-bright)">산타의 선물</td>
+            <td><span class="diff-badge diff-d7">D7 · VH</span></td>
+            <td class="accuracy">4.49%</td>
+            <td>3회</td>
+            <td><span class="pass-badge">✓ 통과</span></td>
+          </tr>
+          <tr>
+            <td><span class="problem-id">25699</span> <span style="font-family:'JetBrains Mono',monospace;font-size:0.7rem;color:var(--text-muted)">VH2543</span></td>
+            <td style="color:var(--text-bright)">타일링</td>
+            <td><span class="diff-badge diff-d7">D7 · VH</span></td>
+            <td class="accuracy">16.67%</td>
+            <td>1회</td>
+            <td><span class="pass-badge">✓ 통과</span></td>
+          </tr>
+          <tr>
+            <td><span class="problem-id">25841</span> <span style="font-family:'JetBrains Mono',monospace;font-size:0.7rem;color:var(--text-muted)">VH2601</span></td>
+            <td style="color:var(--text-bright)">자매 결연</td>
+            <td><span class="diff-badge diff-d7">D7 · VH</span></td>
+            <td class="accuracy">25.53%</td>
+            <td>2회</td>
+            <td><span class="pass-badge">✓ 통과</span></td>
+          </tr>
+          <tr>
+            <td><span class="problem-id">26013</span> <span style="font-family:'JetBrains Mono',monospace;font-size:0.7rem;color:var(--text-muted)">VH2602</span></td>
+            <td style="color:var(--text-bright)">비숍</td>
+            <td><span class="diff-badge diff-d7">D7 · VH</span></td>
+            <td class="accuracy">25.00%</td>
+            <td>2회</td>
+            <td><span class="pass-badge">✓ 통과</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- PROBLEM DETAILS -->
+  <section>
+    <div class="section-label">Problem Details</div>
+    <h2 class="section-title">문제별 상세 풀이</h2>
+
+    <!-- 23009 -->
+    <div class="problem-section fade-in">
+      <div class="problem-header">
+        <div>
+          <div class="problem-num">#23009 <span style="color:var(--text-muted)">/ VH2505</span> · D7(VH) · 정답률 6.67%</div>
+          <div class="problem-name">연속하는 겹치는 구간의 수</div>
+        </div>
+        <div class="problem-algo">치환 분해 트리 + O(N log N)</div>
+      </div>
+      <div class="problem-idea">
+        <h4>풀이 아이디어</h4>
+        <ul>
+          <li>순열의 연속 구간(consecutive interval)은 치환 분해 트리로 구조화</li>
+          <li>교차하는 쌍은 선형 노드(ascending/descending)에서만 발생</li>
+          <li>각 선형 노드에서 자식 크기의 접두사합 + 이진 탐색으로 O(k log k) 계산</li>
+        </ul>
+      </div>
+      <div class="trial fail-trial">
+        <div class="trial-header">Trial 1 — MLE (10/12 TC)</div>
+        <div class="trial-cause">
+          <strong>원인:</strong> 노드 풀 아키텍처에서 선형 노드 평탄화 시 기존 자식 리스트가 풀에 남아 해제되지 않음. 
+          최악의 경우 pool_children에 O(N²) 참조 누적 → 256MB 초과.
+        </div>
+      </div>
+      <div class="trial pass-trial">
+        <div class="trial-header">Trial 2 — 통과 ✓</div>
+        <div class="trial-cause">
+          <strong>수정:</strong> 인라인 처리 방식으로 전환. 선형 노드를 부모에 흡수 시 즉시 기여값 계산 후 children_sizes 폐기(finalize-on-absorption). 
+          전체 O(N) 메모리 유지.
+        </div>
+      </div>
+    </div>
+
+    <!-- 24424 -->
+    <div class="problem-section fade-in">
+      <div class="problem-header">
+        <div>
+          <div class="problem-num">#24424 <span style="color:var(--text-muted)">/ VH2521</span> · D6(VH) · 정답률 23.53%</div>
+          <div class="problem-name">올바른 경로</div>
+        </div>
+        <div class="problem-algo">CFL-도달성 Dijkstra</div>
+      </div>
+      <div class="problem-idea">
+        <h4>풀이 아이디어</h4>
+        <ul>
+          <li>CNF 형태의 CFG와 방향 그래프에서 문맥 자유 언어 제약 최단 경로</li>
+          <li>상태: (비단말 X, 출발 u, 도착 v) — 최대 26³ = 17,576개</li>
+          <li>터미널 규칙으로 거리 1인 초기 상태 힙 삽입, 이진 규칙은 상태 확정 시 조인</li>
+        </ul>
+      </div>
+      <div class="trial pass-trial">
+        <div class="trial-header">Trial 1 — 통과 ✓</div>
+        <div class="trial-cause">
+          상태 공간이 17,576개로 작아 PyPy에서 충분히 빠름. 1차 시도에서 바로 통과.
+        </div>
+      </div>
+    </div>
+
+    <!-- 24529 -->
+    <div class="problem-section fade-in">
+      <div class="problem-header">
+        <div>
+          <div class="problem-num">#24529 <span style="color:var(--text-muted)">/ VH2525</span> · D6(VH) · 정답률 7.69%</div>
+          <div class="problem-name">격자판 위의 달팽이</div>
+        </div>
+        <div class="problem-algo">그리디 + Bigint 비트셋 배낭 DP</div>
+      </div>
+      <div class="problem-idea">
+        <h4>풀이 아이디어</h4>
+        <ul>
+          <li>(1,1)과 (2,N)에 가장 작은 두 값 배치 (필수 경유지)</li>
+          <li>나머지 2(N-1)개 값을 두 그룹 F(윗행), L(아랫행)로 균등 분할 → 합의 차이 최소화</li>
+          <li>F 오름차순, L 내림차순 배치 → 산 모양 배열로 윈도우 합 보장</li>
+          <li>균형 분할은 Python bigint 비트셋 배낭 DP</li>
+        </ul>
+      </div>
+      <div class="trial fail-trial">
+        <div class="trial-header">Trial 1 — WA (18/47 TC)</div>
+        <div class="trial-cause">
+          <strong>원인:</strong> L 그룹을 오름차순으로 정렬 → 전환 윈도우에서 양쪽의 가장 작은 값이 집중.
+        </div>
+      </div>
+      <div class="trial pass-trial">
+        <div class="trial-header">Trial 2 — 통과 ✓</div>
+        <div class="trial-cause">
+          <strong>수정:</strong> <code style="background:var(--bg);padding:0.15rem 0.4rem;border-radius:3px;font-family:'JetBrains Mono',monospace;font-size:0.8rem;color:var(--accent)">L.sort(reverse=True)</code> — 한 줄 수정.
+        </div>
+      </div>
+    </div>
+
+    <!-- 24702 -->
+    <div class="problem-section fade-in">
+      <div class="problem-header">
+        <div>
+          <div class="problem-num">#24702 <span style="color:var(--text-muted)">/ VH2530</span> · D7(VH) · 정답률 30.00%</div>
+          <div class="problem-name">2의 거듭제곱</div>
+        </div>
+        <div class="problem-algo">p-adic 리프팅 이산 로그</div>
+      </div>
+      <div class="problem-idea">
+        <h4>풀이 아이디어</h4>
+        <ul>
+          <li>f(N) = 2^N mod 10^K의 마지막 K자리에 X를 포함시킬 목표값 T를 CRT로 구성</li>
+          <li>2는 mod 5^K의 원시근 → 이산 로그 항상 존재</li>
+          <li>Hensel-style p진 리프팅으로 O(K) 단계만에 로그 추출</li>
+        </ul>
+      </div>
+      <div class="trial fail-trial">
+        <div class="trial-header">Trial 1 — RE</div>
+        <div class="trial-cause"><strong>원인:</strong> <code style="background:var(--bg);padding:0.15rem 0.4rem;border-radius:3px;font-family:'JetBrains Mono',monospace;font-size:0.8rem;color:var(--red)">import io</code> SWEA 환경에서 금지.</div>
+      </div>
+      <div class="trial fail-trial">
+        <div class="trial-header">Trial 2 — WA (4,400/12,190 TC)</div>
+        <div class="trial-cause"><strong>원인:</strong> K=71 사용 시 N 값이 ~10^49까지 커져 채점기의 64비트 정수 범위 초과 추정.</div>
+      </div>
+      <div class="trial pass-trial">
+        <div class="trial-header">Trial 3 — 통과 ✓</div>
+        <div class="trial-cause"><strong>수정:</strong> K를 71→20으로 축소. N 최대값 ~1.53×10^14로 64비트 내 수용.</div>
+      </div>
+    </div>
+
+    <!-- 25333 -->
+    <div class="problem-section fade-in">
+      <div class="problem-header">
+        <div>
+          <div class="problem-num">#25333 <span style="color:var(--text-muted)">/ VH2533</span> · D7(VH) · 정답률 33.33%</div>
+          <div class="problem-name">시너지 효과</div>
+        </div>
+        <div class="problem-algo">Meet-in-the-middle + Matrix-Tree</div>
+      </div>
+      <div class="problem-idea">
+        <h4>풀이 아이디어</h4>
+        <ul>
+          <li>N개 노드 레이블 트리에서 의미 노드의 "고립" 여부로 시너지 계산</li>
+          <li>g(t): 등분할 라플라시안으로 닫힌 식 도출</li>
+          <li>포함-배제로 "정확히 고립" → "최소 고립" 변환</li>
+          <li>Meet-in-the-middle로 부분집합 합 제약 가중 카운트 (m ≤ 40)</li>
+        </ul>
+      </div>
+      <div class="trial fail-trial">
+        <div class="trial-header">Trial 1 — TLE</div>
+        <div class="trial-cause"><strong>원인:</strong> 각 (r, rA, rB) 조합에 대해 모든 B-부분집합 순회 → ~10^8-10^9 반복.</div>
+      </div>
+      <div class="trial pass-trial">
+        <div class="trial-header">Trial 2 — 통과 ✓</div>
+        <div class="trial-cause"><strong>수정:</strong> g(t)×H(t)×N_r 계산을 단일 가중 부분집합 합 쿼리로 통합. 접미사 가중합 배열로 B-부분집합당 이진 탐색 1회로 축소.</div>
+      </div>
+    </div>
+
+    <!-- 25478 -->
+    <div class="problem-section fade-in">
+      <div class="problem-header">
+        <div>
+          <div class="problem-num">#25478 <span style="color:var(--text-muted)">/ VH2537</span> · D7(VH) · 정답률 7.41%</div>
+          <div class="problem-name">수신기 배정</div>
+        </div>
+        <div class="problem-algo">고유 구간 그래프 + 간격 DP</div>
+      </div>
+      <div class="problem-idea">
+        <h4>풀이 아이디어</h4>
+        <ul>
+          <li>N개 수신기를 X개 사물함에 배치, 거리 ≤ D이면 통신 — 유효 배치 수 계산</li>
+          <li>고유 구간 그래프(proper interval graph) 구조 + LBFS+ 정준 순서 추출</li>
+          <li>O(2^D) 상태의 간격 DP로 각 성분의 배치 수 계산</li>
+          <li>쌍둥이 클래스 대칭성 처리 후 성분 간 합성곱으로 최종 답 산출</li>
+        </ul>
+      </div>
+      <div class="trial fail-trial">
+        <div class="trial-header">Trial 1 — MLE</div>
+        <div class="trial-cause"><strong>원인:</strong> 2^N 비트마스크 DP로 N=50에서 2^50 상태 → 메모리 초과.</div>
+      </div>
+      <div class="trial fail-trial">
+        <div class="trial-header">Trial 2 — WA (93/140 TC)</div>
+        <div class="trial-cause"><strong>원인:</strong> 단순 LBFS가 유효한 고유 구간 순서를 보장하지 못함.</div>
+      </div>
+      <div class="trial fail-trial">
+        <div class="trial-header">Trial 3 — WA (139/140 TC)</div>
+        <div class="trial-cause"><strong>원인:</strong> N≥20에서 LBFS+ 타이브레이킹 실패. 순서 검증은 통과하나 간격 DP에서 제약 불만족.</div>
+      </div>
+      <div class="trial pass-trial">
+        <div class="trial-header">Trial 4 — 통과 ✓</div>
+        <div class="trial-cause"><strong>수정:</strong> 우선순위 기반 LBFS+와 정제된 분할 개선(partition refinement) 구현. 4,211건 전수 스트레스 테스트 통과.</div>
+      </div>
+    </div>
+
+    <!-- 25660 -->
+    <div class="problem-section fade-in">
+      <div class="problem-header">
+        <div>
+          <div class="problem-num">#25660 <span style="color:var(--text-muted)">/ VH2540</span> · D7(VH) · 정답률 4.49%</div>
+          <div class="problem-name">산타의 선물</div>
+        </div>
+        <div class="problem-algo">인기 매칭 + Hopcroft-Karp</div>
+      </div>
+      <div class="problem-idea">
+        <h4>풀이 아이디어</h4>
+        <ul>
+          <li>N명에게 N개 선물 배정 — 과반수가 선호하는 다른 배정이 없는 "인기 매칭" 탐색</li>
+          <li>2단계 매칭: 1순위 선물 그룹(A)과 비-S1 최상위 선물 그룹(B)</li>
+          <li>결정적 캐스케이드로 충돌 선물을 S1에 동시 추가, 지수적 분기 방지</li>
+          <li>Hopcroft-Karp 이분 매칭으로 S1 커버리지 검증</li>
+        </ul>
+      </div>
+      <div class="trial fail-trial">
+        <div class="trial-header">Trial 1 — WA (0/77 TC)</div>
+        <div class="trial-cause"><strong>원인:</strong> 지수적 백트래킹 폭발. k명이 동일 1순위를 공유할 때 2^k 분기 발생.</div>
+      </div>
+      <div class="trial fail-trial">
+        <div class="trial-header">Trial 2 — WA (0/77 TC · 출력 형식 오류)</div>
+        <div class="trial-cause"><strong>원인:</strong> problem.md의 샘플 출력에 잘못된 <code style="background:var(--bg);padding:0.15rem 0.4rem;border-radius:3px;font-family:'JetBrains Mono',monospace;font-size:0.8rem;color:var(--red)">#T</code> 접두사 포함.</div>
+      </div>
+      <div class="trial pass-trial">
+        <div class="trial-header">Trial 2 (fix) — 통과 ✓</div>
+        <div class="trial-cause"><strong>수정:</strong> 결정적 캐스케이드 + 이분 매칭 + 출력 형식 수정 후 77/77 통과.</div>
+      </div>
+    </div>
+
+    <!-- 25699 -->
+    <div class="problem-section fade-in">
+      <div class="problem-header">
+        <div>
+          <div class="problem-num">#25699 <span style="color:var(--text-muted)">/ VH2543</span> · D7(VH) · 정답률 16.67%</div>
+          <div class="problem-name">타일링</div>
+        </div>
+        <div class="problem-algo">격자 주기성 + 에르미트 정규형</div>
+      </div>
+      <div class="problem-idea">
+        <h4>풀이 아이디어</h4>
+        <ul>
+          <li>단일 폴리오미노의 평행이동 타일링으로 생성된 H×W 관찰 창 → 타일 최소 넓이</li>
+          <li>타일링은 2D 정수 격자에 대응, 타일 넓이 = 격자의 행렬식(determinant)</li>
+          <li>HNF 기저 (a,0), (c,d)로 유효 이동 테이블 O(H²W²) 사전 계산</li>
+          <li>넓이 1부터 순차 열거하여 최초 유효 HNF 반환</li>
+        </ul>
+      </div>
+      <div class="trial pass-trial">
+        <div class="trial-header">Trial 1 — 통과 ✓</div>
+        <div class="trial-cause">정답률 16.67%의 문제를 1차 시도에서 단번에 해결.</div>
+      </div>
+    </div>
+
+    <!-- 25841 -->
+    <div class="problem-section fade-in">
+      <div class="problem-header">
+        <div>
+          <div class="problem-num">#25841 <span style="color:var(--text-muted)">/ VH2601</span> · D7(VH) · 정답률 25.53%</div>
+          <div class="problem-name">자매 결연</div>
+        </div>
+        <div class="problem-algo">크루스칼 재구성 트리 + LCA</div>
+      </div>
+      <div class="problem-idea">
+        <h4>풀이 아이디어</h4>
+        <ul>
+          <li>가중치 그래프에서 두 차량이 역방향 동시 이동 — 교환 가능 조건 분석</li>
+          <li>연결 성분이 단순 경로가 아닐 때 양보할 "주차 공간" 존재</li>
+          <li>크루스칼 재구성 트리로 비-경로 이벤트 추적, subtree_min_np bottom-up 전파</li>
+          <li>쿼리 (X,Y)는 LCA를 찾아 ans_weight(LCA) 반환</li>
+        </ul>
+      </div>
+      <div class="trial fail-trial">
+        <div class="trial-header">Trial 1 — RE</div>
+        <div class="trial-cause"><strong>원인:</strong> <code style="background:var(--bg);padding:0.15rem 0.4rem;border-radius:3px;font-family:'JetBrains Mono',monospace;font-size:0.8rem;color:var(--red)">import io</code>, <code style="background:var(--bg);padding:0.15rem 0.4rem;border-radius:3px;font-family:'JetBrains Mono',monospace;font-size:0.8rem;color:var(--red)">import os</code> SWEA 환경에서 금지.</div>
+      </div>
+      <div class="trial pass-trial">
+        <div class="trial-header">Trial 2 — 통과 ✓</div>
+        <div class="trial-cause"><strong>수정:</strong> input() / print() 사용으로 교체. 알고리즘 변경 없음.</div>
+      </div>
+    </div>
+
+    <!-- 26013 -->
+    <div class="problem-section fade-in">
+      <div class="problem-header">
+        <div>
+          <div class="problem-num">#26013 <span style="color:var(--text-muted)">/ VH2602</span> · D7(VH) · 정답률 25.00%</div>
+          <div class="problem-name">비숍</div>
+        </div>
+        <div class="problem-algo">페러스 보드 분해 + NTT</div>
+      </div>
+      <div class="problem-idea">
+        <h4>풀이 아이디어</h4>
+        <ul>
+          <li>N×N 체스판에 비공격 비숍 k개 배치 경우의 수 (k=1..2N-1, mod 998244353)</li>
+          <li>대각선 패리티 분해로 두 독립 그룹 분리 → 각각 페러스 보드 룩 배치 문제</li>
+          <li>페러스 보드 분해 정리에 의해 룩 다항식이 선형 인수 곱으로 분해</li>
+          <li>유한 차분 + NTT 합성곱으로 O(N log N) 계산</li>
+        </ul>
+      </div>
+      <div class="trial fail-trial">
+        <div class="trial-header">Trial 1 — TLE</div>
+        <div class="trial-cause"><strong>원인:</strong> O(N²) DP. N=100,000에서 ~10^10 연산으로 30초 제한 초과.</div>
+      </div>
+      <div class="trial pass-trial">
+        <div class="trial-header">Trial 2 — 통과 ✓</div>
+        <div class="trial-cause"><strong>수정:</strong> 페러스 보드 분해 + NTT로 O(N log N) 최적화.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ENVIRONMENT CONSTRAINTS -->
+  <section>
+    <div class="section-label">Environment</div>
+    <h2 class="section-title">SWEA 채점 환경 제약</h2>
+
+    <div class="constraint-list">
+      <div class="constraint-item">
+        <span class="constraint-icon">🚫</span>
+        <div>
+          <span class="constraint-code">import sys</span>
+          <span class="constraint-text"> — 런타임 에러 발생. <code style="font-family:'JetBrains Mono',monospace;color:var(--accent)">input()</code> 만 사용할 것.</span>
+        </div>
+      </div>
+      <div class="constraint-item">
+        <span class="constraint-icon">🚫</span>
+        <div>
+          <span class="constraint-code">import io</span>
+          <span class="constraint-text"> — 런타임 에러 발생. 24702, 25841에서 확인.</span>
+        </div>
+      </div>
+      <div class="constraint-item">
+        <span class="constraint-icon">🚫</span>
+        <div>
+          <span class="constraint-code">import os</span>
+          <span class="constraint-text"> — 런타임 에러 발생. 25841에서 확인.</span>
+        </div>
+      </div>
+      <div class="constraint-item">
+        <span class="constraint-icon">📤</span>
+        <div>
+          <span class="constraint-text">출력: 루프 안에서 케이스별 즉시 출력 (누적 후 일괄 출력도 가능)</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAILURE TYPES -->
+  <section>
+    <div class="section-label">Failure Analysis</div>
+    <h2 class="section-title">실패 유형 분류</h2>
+
+    <div class="failure-grid">
+      <div class="failure-row">
+        <div><span class="failure-type mle">MLE</span></div>
+        <div><div class="failure-label">문제</div><div class="failure-value">#23009 <span style="font-family:'JetBrains Mono',monospace;font-size:0.7rem;color:var(--text-muted);margin-left:0.3rem">VH2505</span></div></div>
+        <div><div class="failure-label">원인</div><div class="failure-value">노드 풀 O(N²) 메모리 누적</div></div>
+        <div><div class="failure-label">해결</div><div class="failure-value">인라인 처리, finalize-on-absorption</div></div>
+      </div>
+      <div class="failure-row">
+        <div><span class="failure-type mle">MLE</span></div>
+        <div><div class="failure-label">문제</div><div class="failure-value">#25478 <span style="font-family:'JetBrains Mono',monospace;font-size:0.7rem;color:var(--text-muted);margin-left:0.3rem">VH2537</span></div></div>
+        <div><div class="failure-label">원인</div><div class="failure-value">2^N 비트마스크 DP (N=50)</div></div>
+        <div><div class="failure-label">해결</div><div class="failure-value">고유 구간 순서 + O(2^D) 간격 DP</div></div>
+      </div>
+      <div class="failure-row">
+        <div><span class="failure-type wa">WA</span></div>
+        <div><div class="failure-label">문제</div><div class="failure-value">#24529 <span style="font-family:'JetBrains Mono',monospace;font-size:0.7rem;color:var(--text-muted);margin-left:0.3rem">VH2525</span></div></div>
+        <div><div class="failure-label">원인</div><div class="failure-value">L 정렬 방향 오류 (asc→desc)</div></div>
+        <div><div class="failure-label">해결</div><div class="failure-value">L.sort(reverse=True)</div></div>
+      </div>
+      <div class="failure-row">
+        <div><span class="failure-type wa">WA</span></div>
+        <div><div class="failure-label">문제</div><div class="failure-value">#24702 <span style="font-family:'JetBrains Mono',monospace;font-size:0.7rem;color:var(--text-muted);margin-left:0.3rem">VH2530</span></div></div>
+        <div><div class="failure-label">원인</div><div class="failure-value">K=71 → N 값 과대 (64비트 오버플로)</div></div>
+        <div><div class="failure-label">해결</div><div class="failure-value">K=20으로 축소</div></div>
+      </div>
+      <div class="failure-row">
+        <div><span class="failure-type wa">WA</span></div>
+        <div><div class="failure-label">문제</div><div class="failure-value">#25478 <span style="font-family:'JetBrains Mono',monospace;font-size:0.7rem;color:var(--text-muted);margin-left:0.3rem">VH2537</span></div></div>
+        <div><div class="failure-label">원인</div><div class="failure-value">LBFS/LBFS+ 타이브레이킹 미흡</div></div>
+        <div><div class="failure-label">해결</div><div class="failure-value">우선순위 기반 LBFS+ + 분할 개선</div></div>
+      </div>
+      <div class="failure-row">
+        <div><span class="failure-type wa">WA</span></div>
+        <div><div class="failure-label">문제</div><div class="failure-value">#25660 <span style="font-family:'JetBrains Mono',monospace;font-size:0.7rem;color:var(--text-muted);margin-left:0.3rem">VH2540</span></div></div>
+        <div><div class="failure-label">원인</div><div class="failure-value">지수적 백트래킹 + 출력 형식 오류</div></div>
+        <div><div class="failure-label">해결</div><div class="failure-value">결정적 캐스케이드 + 형식 수정</div></div>
+      </div>
+      <div class="failure-row">
+        <div><span class="failure-type re">RE</span></div>
+        <div><div class="failure-label">문제</div><div class="failure-value">#24702 <span style="font-family:'JetBrains Mono',monospace;font-size:0.7rem;color:var(--text-muted);margin-left:0.3rem">VH2530</span></div></div>
+        <div><div class="failure-label">원인</div><div class="failure-value">import io 금지</div></div>
+        <div><div class="failure-label">해결</div><div class="failure-value">input() / print() 사용</div></div>
+      </div>
+      <div class="failure-row">
+        <div><span class="failure-type re">RE</span></div>
+        <div><div class="failure-label">문제</div><div class="failure-value">#25841 <span style="font-family:'JetBrains Mono',monospace;font-size:0.7rem;color:var(--text-muted);margin-left:0.3rem">VH2601</span></div></div>
+        <div><div class="failure-label">원인</div><div class="failure-value">import io, import os 금지</div></div>
+        <div><div class="failure-label">해결</div><div class="failure-value">input() / print() 사용</div></div>
+      </div>
+      <div class="failure-row">
+        <div><span class="failure-type tle">TLE</span></div>
+        <div><div class="failure-label">문제</div><div class="failure-value">#25333 <span style="font-family:'JetBrains Mono',monospace;font-size:0.7rem;color:var(--text-muted);margin-left:0.3rem">VH2533</span></div></div>
+        <div><div class="failure-label">원인</div><div class="failure-value">per-(r,rA,rB) 반복 ~10⁹회</div></div>
+        <div><div class="failure-label">해결</div><div class="failure-value">가중치 사전 계산 + 접미사합 배열</div></div>
+      </div>
+      <div class="failure-row">
+        <div><span class="failure-type tle">TLE</span></div>
+        <div><div class="failure-label">문제</div><div class="failure-value">#26013 <span style="font-family:'JetBrains Mono',monospace;font-size:0.7rem;color:var(--text-muted);margin-left:0.3rem">VH2602</span></div></div>
+        <div><div class="failure-label">원인</div><div class="failure-value">O(N²) DP, N=100K</div></div>
+        <div><div class="failure-label">해결</div><div class="failure-value">페러스 보드 분해 + NTT O(N log N)</div></div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    SWEA Problem Solving Report · Claude Opus 4.6 · Context Engineering · 2026-02-25 — 2026-03-01
+  </footer>
+
+</div>
+
+<script>
+// Intersection Observer for scroll animations
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.style.opacity = '1';
+      entry.target.style.transform = 'translateY(0)';
+    }
+  });
+}, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+
+document.querySelectorAll('.problem-section, .principle-card, .failure-row, .arch-card').forEach(el => {
+  el.style.opacity = '0';
+  el.style.transform = 'translateY(20px)';
+  el.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+  observer.observe(el);
+});
+</script>
+</body>
+</html>

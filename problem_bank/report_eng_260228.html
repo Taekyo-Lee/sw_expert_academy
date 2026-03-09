@@ -1,0 +1,1798 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SWEA Problem Solving Report — Context Engineering</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Noto+Sans+KR:wght@300;400;500;700;900&family=Playfair+Display:ital,wght@0,700;0,900;1,700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0a0f;
+  --bg-card: #12121a;
+  --bg-card-hover: #1a1a26;
+  --border: #1e1e2e;
+  --border-accent: #2a2a3e;
+  --text: #c8c8d8;
+  --text-muted: #6e6e8a;
+  --text-bright: #eeeef6;
+  --accent: #22d68a;
+  --accent-dim: #1a9e68;
+  --accent-glow: rgba(34, 214, 138, 0.15);
+  --red: #ff4d6a;
+  --red-dim: rgba(255, 77, 106, 0.15);
+  --orange: #ff9f43;
+  --orange-dim: rgba(255, 159, 67, 0.15);
+  --blue: #4d9fff;
+  --blue-dim: rgba(77, 159, 255, 0.15);
+  --purple: #a78bfa;
+  --purple-dim: rgba(167, 139, 250, 0.15);
+  --yellow: #fbbf24;
+  --yellow-dim: rgba(251, 191, 36, 0.15);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Noto Sans KR', sans-serif;
+  font-weight: 400;
+  line-height: 1.75;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+/* Noise texture overlay */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 9999;
+}
+
+.container {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+/* ── HERO ── */
+.hero {
+  padding: 6rem 0 4rem;
+  position: relative;
+}
+
+.hero::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 50%;
+  transform: translateX(-50%);
+  width: 600px; height: 600px;
+  background: radial-gradient(circle, rgba(34, 214, 138, 0.06) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 1rem;
+  border: 1px solid var(--border-accent);
+  border-radius: 100px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  letter-spacing: 0.05em;
+  margin-bottom: 2rem;
+  animation: fadeIn 0.8s ease;
+}
+
+.hero-badge .dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 8px var(--accent);
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+.hero h1 {
+  font-family: 'Playfair Display', serif;
+  font-weight: 900;
+  font-size: clamp(2.5rem, 5vw, 4rem);
+  color: var(--text-bright);
+  line-height: 1.15;
+  margin-bottom: 1.5rem;
+  animation: slideUp 0.6s ease;
+}
+
+.hero h1 em {
+  font-style: italic;
+  color: var(--accent);
+}
+
+.hero-subtitle {
+  font-size: 1.1rem;
+  color: var(--text-muted);
+  max-width: 600px;
+  animation: slideUp 0.6s ease 0.1s both;
+}
+
+.hero-meta {
+  display: flex;
+  gap: 2rem;
+  margin-top: 2.5rem;
+  flex-wrap: wrap;
+  animation: slideUp 0.6s ease 0.2s both;
+}
+
+.hero-meta-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.hero-meta-item .label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--text-muted);
+}
+
+.hero-meta-item .value {
+  font-weight: 500;
+  color: var(--text-bright);
+  font-size: 0.95rem;
+}
+
+/* ── SCORE BANNER ── */
+.score-banner {
+  margin: 3rem 0;
+  padding: 2rem;
+  background: linear-gradient(135deg, rgba(34, 214, 138, 0.08), rgba(34, 214, 138, 0.02));
+  border: 1px solid rgba(34, 214, 138, 0.2);
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  animation: slideUp 0.6s ease 0.3s both;
+}
+
+.score-number {
+  font-family: 'Playfair Display', serif;
+  font-size: 4rem;
+  font-weight: 900;
+  color: var(--accent);
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.score-number span {
+  font-size: 1.5rem;
+  color: var(--text-muted);
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 400;
+}
+
+.score-detail {
+  flex: 1;
+}
+
+.score-detail p {
+  color: var(--text);
+  font-size: 0.95rem;
+}
+
+.score-detail .highlight {
+  color: var(--accent);
+  font-weight: 500;
+}
+
+/* ── SECTION ── */
+section {
+  padding: 3rem 0;
+}
+
+.section-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: var(--accent);
+  margin-bottom: 0.75rem;
+}
+
+.section-title {
+  font-family: 'Playfair Display', serif;
+  font-weight: 700;
+  font-size: 2rem;
+  color: var(--text-bright);
+  margin-bottom: 1.5rem;
+  line-height: 1.3;
+}
+
+.section-desc {
+  color: var(--text);
+  font-size: 0.95rem;
+  max-width: 700px;
+  margin-bottom: 2rem;
+}
+
+/* ── ARCHITECTURE TIMELINE ── */
+.arch-timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  margin: 2rem 0;
+}
+
+.arch-card {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.75rem;
+  background: var(--bg-card);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.arch-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 4px; height: 100%;
+}
+
+.arch-card.fail::before { background: var(--red); }
+.arch-card.partial::before { background: var(--orange); }
+.arch-card.success::before { background: var(--accent); }
+
+.arch-card.success {
+  border-color: rgba(34, 214, 138, 0.3);
+  background: linear-gradient(135deg, var(--bg-card), rgba(34, 214, 138, 0.03));
+}
+
+.arch-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.arch-attempt {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.25rem 0.75rem;
+  border-radius: 100px;
+}
+
+.arch-card.fail .arch-attempt { background: var(--red-dim); color: var(--red); }
+.arch-card.partial .arch-attempt { background: var(--orange-dim); color: var(--orange); }
+.arch-card.success .arch-attempt { background: var(--accent-glow); color: var(--accent); }
+
+.arch-result {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.arch-title {
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: var(--text-bright);
+  margin-bottom: 0.5rem;
+}
+
+.arch-body {
+  font-size: 0.9rem;
+  color: var(--text);
+}
+
+.arch-tags {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  flex-wrap: wrap;
+}
+
+.arch-tag {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.65rem;
+  padding: 0.2rem 0.6rem;
+  border-radius: 4px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+}
+
+/* ── FLOW DIAGRAM ── */
+.flow-section {
+  margin: 3rem 0;
+  overflow-x: auto;
+}
+
+.flow-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+  min-width: 800px;
+}
+
+.flow-col {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.5rem;
+  background: var(--bg-card);
+}
+
+.flow-col-header {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 0.25rem;
+}
+
+.flow-col.fail .flow-col-header { color: var(--red); }
+.flow-col.partial .flow-col-header { color: var(--orange); }
+.flow-col.success .flow-col-header { color: var(--accent); }
+
+.flow-col-title {
+  font-weight: 700;
+  color: var(--text-bright);
+  font-size: 0.95rem;
+  margin-bottom: 1.25rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.flow-step {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.6rem 0;
+  font-size: 0.85rem;
+}
+
+.flow-step .icon {
+  width: 28px; height: 28px;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  flex-shrink: 0;
+}
+
+.flow-step.active .icon { background: var(--accent-glow); }
+.flow-step.error .icon { background: var(--red-dim); }
+
+.flow-arrow {
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  padding: 0.2rem 0;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.flow-result {
+  margin-top: 1rem;
+  padding: 0.75rem;
+  border-radius: 8px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem;
+  text-align: center;
+  font-weight: 600;
+}
+
+.flow-result.fail { background: var(--red-dim); color: var(--red); }
+.flow-result.partial { background: var(--orange-dim); color: var(--orange); }
+.flow-result.success { background: var(--accent-glow); color: var(--accent); }
+
+.flow-transfer {
+  margin-top: 1rem;
+  padding: 0.6rem;
+  border-radius: 8px;
+  border: 1px dashed var(--border-accent);
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+/* ── CONTEXT ENGINEERING ── */
+.principle-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+  margin: 2rem 0;
+}
+
+.principle-card {
+  padding: 1.5rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  transition: border-color 0.3s ease;
+}
+
+.principle-card:hover {
+  border-color: var(--border-accent);
+}
+
+.principle-icon {
+  font-size: 1.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.principle-name {
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--text-bright);
+  margin-bottom: 0.4rem;
+}
+
+.principle-desc {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.principle-apply {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.72rem;
+  color: var(--accent-dim);
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--border);
+}
+
+/* ── SKILLS LIST ── */
+.skills-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.skill-item {
+  padding: 1.25rem 1.5rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  transition: border-color 0.3s ease;
+}
+
+.skill-item:hover { border-color: var(--border-accent); }
+
+.skill-item.supervisor {
+  border-color: rgba(167, 139, 250, 0.3);
+  background: linear-gradient(135deg, var(--bg-card), rgba(167, 139, 250, 0.04));
+}
+
+.skill-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.6rem;
+}
+
+.skill-icon { font-size: 1.1rem; }
+
+.skill-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.skill-name {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-bright);
+}
+
+.skill-role {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.65rem;
+  padding: 0.15rem 0.5rem;
+  border-radius: 4px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+}
+
+.skill-item.supervisor .skill-role {
+  background: var(--purple-dim);
+  color: var(--purple);
+  border-color: rgba(167, 139, 250, 0.3);
+}
+
+.skill-desc {
+  font-size: 0.85rem;
+  color: var(--text);
+  line-height: 1.7;
+}
+
+.skill-desc code {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.78rem;
+  background: var(--bg);
+  padding: 0.12rem 0.4rem;
+  border-radius: 3px;
+  color: var(--accent);
+}
+
+/* ── BLOCKQUOTE ── */
+.insight-quote {
+  margin: 3rem 0;
+  padding: 2rem 2.5rem;
+  border-left: 3px solid var(--accent);
+  background: linear-gradient(90deg, var(--accent-glow), transparent);
+  border-radius: 0 12px 12px 0;
+}
+
+.insight-quote p {
+  font-size: 1.05rem;
+  color: var(--text-bright);
+  line-height: 1.8;
+}
+
+.insight-quote .em {
+  color: var(--accent);
+  font-weight: 500;
+}
+
+/* ── RESULTS TABLE ── */
+.results-table-wrap {
+  overflow-x: auto;
+  margin: 2rem 0;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+
+thead th {
+  background: var(--bg-card);
+  padding: 1rem;
+  text-align: left;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+  font-weight: 500;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+
+tbody td {
+  padding: 0.9rem 1rem;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+
+tbody tr:last-child td { border-bottom: none; }
+
+tbody tr:hover { background: var(--bg-card); }
+
+.problem-id {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 600;
+  color: var(--blue);
+  font-size: 0.85rem;
+}
+
+.diff-badge {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.65rem;
+  font-weight: 600;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+
+.diff-d7 { background: var(--red-dim); color: var(--red); }
+.diff-d6 { background: var(--orange-dim); color: var(--orange); }
+
+.pass-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--accent);
+  background: var(--accent-glow);
+  padding: 0.25rem 0.6rem;
+  border-radius: 4px;
+}
+
+.accuracy {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.8rem;
+}
+
+/* ── PROBLEM DETAIL ── */
+.problem-section {
+  margin: 2rem 0;
+  padding: 2rem;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: var(--bg-card);
+}
+
+.problem-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.problem-num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.problem-name {
+  font-weight: 700;
+  font-size: 1.25rem;
+  color: var(--text-bright);
+  margin-top: 0.25rem;
+}
+
+.problem-algo {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.72rem;
+  color: var(--purple);
+  background: var(--purple-dim);
+  padding: 0.3rem 0.75rem;
+  border-radius: 6px;
+  white-space: nowrap;
+  height: fit-content;
+}
+
+.problem-idea {
+  margin-bottom: 1.5rem;
+}
+
+.problem-idea h4 {
+  font-size: 0.8rem;
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 0.75rem;
+}
+
+.problem-idea ul {
+  list-style: none;
+  padding: 0;
+}
+
+.problem-idea li {
+  position: relative;
+  padding-left: 1.25rem;
+  margin-bottom: 0.4rem;
+  font-size: 0.88rem;
+  color: var(--text);
+}
+
+.problem-idea li::before {
+  content: '›';
+  position: absolute;
+  left: 0;
+  color: var(--accent-dim);
+  font-weight: 700;
+}
+
+.trial {
+  padding: 1rem 1.25rem;
+  border-radius: 10px;
+  margin-bottom: 0.75rem;
+  font-size: 0.85rem;
+}
+
+.trial.fail-trial {
+  background: rgba(255, 77, 106, 0.05);
+  border: 1px solid rgba(255, 77, 106, 0.15);
+}
+
+.trial.pass-trial {
+  background: rgba(34, 214, 138, 0.05);
+  border: 1px solid rgba(34, 214, 138, 0.15);
+}
+
+.trial-header {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 600;
+  font-size: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.trial.fail-trial .trial-header { color: var(--red); }
+.trial.pass-trial .trial-header { color: var(--accent); }
+
+.trial-cause {
+  color: var(--text-muted);
+  font-size: 0.82rem;
+}
+
+.trial-cause strong {
+  color: var(--text);
+  font-weight: 500;
+}
+
+/* ── ENV CONSTRAINTS ── */
+.constraint-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin: 1.5rem 0;
+}
+
+.constraint-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+
+.constraint-icon {
+  font-size: 1.2rem;
+  flex-shrink: 0;
+}
+
+.constraint-code {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.8rem;
+  color: var(--red);
+  background: var(--red-dim);
+  padding: 0.15rem 0.5rem;
+  border-radius: 4px;
+}
+
+.constraint-text {
+  font-size: 0.88rem;
+  color: var(--text);
+}
+
+/* ── FAILURE TYPES TABLE ── */
+.failure-grid {
+  display: grid;
+  gap: 1rem;
+  margin: 2rem 0;
+}
+
+.failure-row {
+  display: grid;
+  grid-template-columns: 100px 1fr 1fr 1fr;
+  gap: 1rem;
+  padding: 1.25rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  font-size: 0.85rem;
+  align-items: start;
+}
+
+.failure-type {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.failure-type.mle { background: var(--purple-dim); color: var(--purple); }
+.failure-type.wa { background: var(--orange-dim); color: var(--orange); }
+.failure-type.re { background: var(--red-dim); color: var(--red); }
+.failure-type.tle { background: var(--yellow-dim); color: var(--yellow); }
+
+.failure-label {
+  font-size: 0.7rem;
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 0.3rem;
+}
+
+.failure-value {
+  font-size: 0.82rem;
+  color: var(--text);
+}
+
+/* ── LESSON CARDS ── */
+.lesson-pair {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  margin: 2rem 0;
+}
+
+.lesson-card {
+  padding: 1.5rem;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+}
+
+.lesson-from-to {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  color: var(--accent);
+  margin-bottom: 0.5rem;
+}
+
+.lesson-title {
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--text-bright);
+  margin-bottom: 0.75rem;
+}
+
+.lesson-body {
+  font-size: 0.88rem;
+  color: var(--text);
+}
+
+/* ── FOOTER ── */
+.footer {
+  padding: 3rem 0;
+  margin-top: 2rem;
+  border-top: 1px solid var(--border);
+  text-align: center;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  letter-spacing: 0.05em;
+}
+
+/* ── ANIMATIONS ── */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.fade-in { animation: slideUp 0.6s ease both; }
+.delay-1 { animation-delay: 0.1s; }
+.delay-2 { animation-delay: 0.2s; }
+.delay-3 { animation-delay: 0.3s; }
+.delay-4 { animation-delay: 0.4s; }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 768px) {
+  .container { padding: 0 1.25rem; }
+  .hero { padding: 4rem 0 2rem; }
+  .score-banner { flex-direction: column; text-align: center; }
+  .principle-grid { grid-template-columns: 1fr; }
+  .lesson-pair { grid-template-columns: 1fr; }
+  .failure-row {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+  }
+  .flow-grid { min-width: 700px; }
+  .problem-header { flex-direction: column; }
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- HERO -->
+  <header class="hero">
+    <div class="hero-badge"><span class="dot"></span> 2026-02-25 — 2026-03-01 Experiment Report</div>
+    <h1>SW Expert Academy<br><em>Context Engineering</em><br>Problem Solving Report</h1>
+    <p class="hero-subtitle">
+      An experiment log on how agent architecture fundamentally changes the performance of the same model.
+    </p>
+    <div class="hero-meta">
+      <div class="hero-meta-item">
+        <span class="label">Agent</span>
+        <span class="value">Claude Opus 4.6</span>
+      </div>
+      <div class="hero-meta-item">
+        <span class="label">Reasoning Effort</span>
+        <span class="value">High</span>
+      </div>
+      <div class="hero-meta-item">
+        <span class="label">Submission Rule</span>
+        <span class="value">Max 10 per problem</span>
+      </div>
+      <div class="hero-meta-item">
+        <span class="label">Platform</span>
+        <span class="value">swexpertacademy.samsung.com</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- SCORE -->
+  <div class="score-banner">
+    <div class="score-number">10<span>/10</span></div>
+    <div class="score-detail">
+      <p>
+        All D6–D7 (Very High) difficulty problems <span class="highlight">passed</span>. 
+        Including a D7(VH) problem with only 4.49% acceptance rate — achieved with the third architecture.
+        The key was changing the <span class="highlight">context structure</span>, not the model.
+      </p>
+    </div>
+  </div>
+
+  <!-- ARCHITECTURE HISTORY -->
+  <section>
+    <div class="section-label">Architecture Evolution</div>
+    <h2 class="section-title">Agent Architecture Experiment History</h2>
+    <p class="section-desc">
+      The optimal architecture was discovered through three iterations. The model's capabilities were identical — the information transfer method determined the outcome.
+    </p>
+
+    <div class="arch-timeline">
+      <div class="arch-card fail fade-in">
+        <div class="arch-header">
+          <span class="arch-attempt">1st Attempt</span>
+          <span class="arch-result">❌ Unable to generate code</span>
+        </div>
+        <div class="arch-title">Single Agent</div>
+        <div class="arch-body">
+          plan → write → reflect performed in a single context. As the conversation grew longer, context rot occurred — the model lost its ability to generate code.
+        </div>
+        <div class="arch-tags">
+          <span class="arch-tag">Reasoning Effort: High</span>
+          <span class="arch-tag">Single Context</span>
+          <span class="arch-tag">Context Rot</span>
+        </div>
+      </div>
+
+      <div class="arch-card partial fade-in delay-1">
+        <div class="arch-header">
+          <span class="arch-attempt">2nd Attempt</span>
+          <span class="arch-result">⚠ 1 of 4 problems passed</span>
+        </div>
+        <div class="arch-title">Sub-agent Separation — Traditional Prompt-based Agents</div>
+        <div class="arch-body">
+          Agents were separated, but each operated via the traditional method of <strong style="color:var(--text-bright)">injecting instructions into prompts</strong>. The previous agent's output was summarized and injected into the next agent's context, causing loss of fine-grained algorithmic details during summarization.
+        </div>
+        <div class="arch-tags">
+          <span class="arch-tag">Reasoning Effort: Medium</span>
+          <span class="arch-tag">Prompt Instructions</span>
+          <span class="arch-tag">Summary Transfer</span>
+          <span class="arch-tag">Information Loss</span>
+        </div>
+      </div>
+
+      <div class="arch-card success fade-in delay-2">
+        <div class="arch-header">
+          <span class="arch-attempt">3rd Attempt ✓</span>
+          <span class="arch-result">✅ 10/10 All problems passed</span>
+        </div>
+        <div class="arch-title">Full Sub-agent Isolation — Claude Skills-based Agents</div>
+        <div class="arch-body">
+          Each agent implemented as <strong style="color:var(--accent)">Claude Skills</strong> — not prompt instructions but <strong style="color:var(--text-bright)">structured SKILL.md files</strong> define agent behavior. The <strong style="color:var(--purple)">solve_coding_test</strong> Skill orchestrates sub-agents as Supervisor, and inter-agent communication is file-based, fundamentally preventing context rot.
+        </div>
+        <div class="arch-tags">
+          <span class="arch-tag">Reasoning Effort: High</span>
+          <span class="arch-tag" style="background:var(--accent-glow);color:var(--accent);border-color:rgba(34,214,138,0.3)">Claude Skills</span>
+          <span class="arch-tag" style="background:var(--purple-dim);color:var(--purple);border-color:rgba(167,139,250,0.3)">Supervisor Pattern</span>
+          <span class="arch-tag">File-based Interface</span>
+          <span class="arch-tag">Context Isolation</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FLOW DIAGRAM -->
+  <section>
+    <div class="section-label">Agent Flow Comparison</div>
+    <h2 class="section-title">Agent Execution Flow</h2>
+
+    <div class="flow-section">
+      <div class="flow-grid">
+        <!-- Column 1: Single Agent -->
+        <div class="flow-col fail">
+          <div class="flow-col-header">1st · Reasoning Effort: High</div>
+          <div class="flow-col-title">Single Agent</div>
+          <div class="flow-step"><span class="icon">🧩</span> Fetch Problem</div>
+          <div class="flow-arrow">↓</div>
+          <div class="flow-step"><span class="icon">📝</span> Algorithm Design</div>
+          <div class="flow-arrow">↓</div>
+          <div class="flow-step"><span class="icon">💻</span> Write Code</div>
+          <div class="flow-arrow">↓</div>
+          <div class="flow-step"><span class="icon">🔍</span> Failure Analysis</div>
+          <div class="flow-arrow">↓</div>
+          <div class="flow-step"><span class="icon">💻</span> Rewrite Code</div>
+          <div class="flow-arrow">↓ ... repeat</div>
+          <div class="flow-step error"><span class="icon">💀</span> Context Rot</div>
+          <div class="flow-result fail">❌ Unable to generate code</div>
+          <div class="flow-transfer">Info transfer: None (single context)</div>
+        </div>
+
+        <!-- Column 2: Summary Transfer -->
+        <div class="flow-col partial">
+          <div class="flow-col-header">2nd · Reasoning Effort: Medium</div>
+          <div class="flow-col-title">Prompt-based Sub-agents</div>
+          <div class="flow-step"><span class="icon">🧩</span> Problem Fetch Agent</div>
+          <div class="flow-arrow">↓ Summary Transfer</div>
+          <div class="flow-step"><span class="icon">📝</span> Plan Agent</div>
+          <div class="flow-arrow">↓ Summary Transfer</div>
+          <div class="flow-step"><span class="icon">💻</span> Write Agent</div>
+          <div class="flow-arrow">↓</div>
+          <div class="flow-step"><span class="icon">👤</span> Judge <span style="font-size:0.7rem;color:var(--text-muted);font-family:'JetBrains Mono',monospace">(human)</span></div>
+          <div class="flow-arrow">Pass? → ✅ &nbsp;|&nbsp; Fail? ↓</div>
+          <div class="flow-step"><span class="icon">🔍</span> Reflect Agent</div>
+          <div class="flow-arrow">↓ Failure summary transfer</div>
+          <div class="flow-step"><span class="icon">💻</span> Write Agent (retry)</div>
+          <div class="flow-arrow">↑ Retry on failure ──╮</div>
+          <div class="flow-step"><span class="icon">👤</span> Judge (human) ──╯</div>
+          <div class="flow-result partial">⚠ 1/4 Passed</div>
+          <div class="flow-transfer">Agent definition: Prompt instructions<br>Info transfer: In-context summary → Information loss</div>
+        </div>
+
+        <!-- Column 3: File-based -->
+        <div class="flow-col success">
+          <div class="flow-col-header">3rd · Reasoning Effort: High</div>
+          <div class="flow-col-title">Skills-based Sub-agents ✅</div>
+          <div class="flow-step active" style="margin-bottom:0.5rem;padding:0.5rem 0.75rem;background:rgba(167,139,250,0.08);border:1px solid rgba(167,139,250,0.2);border-radius:8px;">
+            <span class="icon" style="background:var(--purple-dim)">🎛️</span>
+            <span style="font-size:0.82rem;"><strong style="color:var(--purple)">Supervisor</strong> <span style="font-family:'JetBrains Mono',monospace;font-size:0.7rem;color:var(--text-muted)">solve_coding_test</span></span>
+          </div>
+          <div class="flow-arrow">↓ Sub-agent orchestration</div>
+          <div class="flow-step active"><span class="icon">🧩</span> Problem Fetch <span style="font-family:'JetBrains Mono',monospace;font-size:0.7rem;color:var(--text-muted);margin-left:0.3rem">get_coding_problem</span></div>
+          <div class="flow-arrow">↓ Save problem.md</div>
+          <div class="flow-step active"><span class="icon">📝</span> Plan <span style="font-family:'JetBrains Mono',monospace;font-size:0.7rem;color:var(--text-muted);margin-left:0.3rem">plan_coding_problem</span></div>
+          <div class="flow-arrow">↓ Save plan.md</div>
+          <div class="flow-step active"><span class="icon">💻</span> Write <span style="font-family:'JetBrains Mono',monospace;font-size:0.7rem;color:var(--text-muted);margin-left:0.3rem">write_coding_problem</span></div>
+          <div class="flow-arrow">↓ Save solution.py</div>
+          <div class="flow-step active"><span class="icon">🛡️</span> Validate <span style="font-family:'JetBrains Mono',monospace;font-size:0.7rem;color:var(--text-muted);margin-left:0.3rem">validate_coding_problem</span></div>
+          <div class="flow-arrow">↓</div>
+          <div class="flow-step active"><span class="icon">👤</span> Judge <span style="font-size:0.7rem;color:var(--text-muted);font-family:'JetBrains Mono',monospace">(human)</span></div>
+          <div class="flow-arrow">Pass? → ✅ &nbsp;|&nbsp; Fail? ↓</div>
+          <div class="flow-step active"><span class="icon">🔍</span> Reflect <span style="font-family:'JetBrains Mono',monospace;font-size:0.7rem;color:var(--text-muted);margin-left:0.3rem">reflect_coding_problem</span></div>
+          <div class="flow-arrow">↓ Update plan.md</div>
+          <div class="flow-step active"><span class="icon">💻</span> Write (retry) <span style="font-family:'JetBrains Mono',monospace;font-size:0.7rem;color:var(--text-muted);margin-left:0.3rem">write_coding_problem</span></div>
+          <div class="flow-arrow">↑ Retry on failure ──╮</div>
+          <div class="flow-step active"><span class="icon">👤</span> Judge (human) ──╯</div>
+          <div class="flow-result success">✅ 10/10 Passed</div>
+          <div class="flow-transfer">Agent definition: Claude Skills (SKILL.md)<br>Info transfer: Independent markdown files → Lossless</div>
+        </div>
+      </div>
+
+      <div style="margin-top:1.5rem;padding:1rem 1.25rem;border:1px dashed var(--border-accent);border-radius:10px;display:flex;align-items:center;gap:0.75rem;">
+        <span style="font-size:1.1rem;">👤</span>
+        <p style="font-size:0.82rem;color:var(--text-muted);margin:0;">
+          <span style="color:var(--text-bright);font-weight:500;">The judging step is currently Human-in-the-Loop</span> — a human submits code on <a href="https://swexpertacademy.samsung.com" target="_blank" style="color:var(--blue);text-decoration:none;border-bottom:1px dashed var(--blue);">swexpertacademy.samsung.com</a> and relays the judge verdict back to the agent.
+          <span style="color:var(--accent);">Automated submission and result parsing planned.</span>
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTEXT ENGINEERING -->
+  <section>
+    <div class="section-label">Context Engineering</div>
+    <h2 class="section-title">Context Engineering</h2>
+    <p class="section-desc">
+      The model's capabilities were identical, yet simply changing the context structure shifted results from 0/4 to 10/10. The decisive turning point was switching from prompt instructions to Claude Skills.
+    </p>
+
+    <div class="principle-grid" style="grid-template-columns: repeat(2, 1fr);">
+      <div class="principle-card fade-in">
+        <div class="principle-icon">🔒</div>
+        <div class="principle-name">Context Isolation</div>
+        <div class="principle-desc">Each agent has an independent context window</div>
+        <div class="principle-apply">→ Separate agents for plan, write, validate, reflect</div>
+      </div>
+      <div class="principle-card fade-in delay-1">
+        <div class="principle-icon">📄</div>
+        <div class="principle-name">File-based Interface</div>
+        <div class="principle-desc">Inter-agent communication only through structured markdown files</div>
+        <div class="principle-apply">→ problem.md → plan.md → solution.py → validate → judge</div>
+      </div>
+      <div class="principle-card fade-in delay-2">
+        <div class="principle-icon">✂️</div>
+        <div class="principle-name">Minimal Context Principle</div>
+        <div class="principle-desc">Each agent receives only the minimum information needed for its task</div>
+        <div class="principle-apply">→ Write agent reads only plan.md to generate code</div>
+      </div>
+      <div class="principle-card fade-in delay-3">
+        <div class="principle-icon">📖</div>
+        <div class="principle-name">Explicit Knowledge Externalization</div>
+        <div class="principle-desc">Knowledge transferred via explicit documents, not implicit context</div>
+        <div class="principle-apply">→ Original markdown files instead of summaries</div>
+      </div>
+      <div class="principle-card fade-in delay-4" style="grid-column: 1 / -1; border-color: rgba(34,214,138,0.3); background: linear-gradient(135deg, var(--bg-card), rgba(34,214,138,0.03));">
+        <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.75rem;">
+          <div class="principle-icon" style="margin:0;">⚡</div>
+          <div class="principle-name" style="margin:0;font-size:1.05rem;">Claude Skills = Context Engineering Realized</div>
+        </div>
+        <div class="principle-desc" style="color:var(--text);max-width:none;">
+          Defining agents via prompt instructions means the instructions themselves consume and pollute the context.
+          <strong style="color:var(--accent)">Claude Skills</strong> externalize both agent behavior definitions (SKILL.md) and inter-agent data transfer into structured files, naturally achieving all four principles above.
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:0.5rem;margin-top:1rem;padding-top:1rem;border-top:1px solid var(--border);">
+          <span class="arch-tag" style="background:var(--purple-dim);color:var(--purple);border-color:rgba(167,139,250,0.3)">🎛️ solve_coding_test (Supervisor)</span>
+          <span class="arch-tag">🧩 get_coding_problem</span>
+          <span class="arch-tag">📝 plan_coding_problem</span>
+          <span class="arch-tag">💻 write_coding_problem</span>
+          <span class="arch-tag">🛡️ validate_coding_problem</span>
+          <span class="arch-tag">🔍 reflect_coding_problem</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Skills Breakdown -->
+    <div style="margin-top:2.5rem;">
+      <h3 style="font-family:'JetBrains Mono',monospace;font-size:0.75rem;text-transform:uppercase;letter-spacing:0.12em;color:var(--accent);margin-bottom:1.25rem;">Skills Breakdown</h3>
+
+      <div style="margin-bottom:1.25rem;padding:1rem 1.25rem;border:1px solid var(--border-accent);border-radius:10px;background:var(--bg-card);font-size:0.83rem;color:var(--text);line-height:1.75;">
+        <strong style="color:var(--text-bright)">What is a Skill?</strong> — 
+        A structured markdown file that defines <em>what each agent should do</em> (<code style="font-family:'JetBrains Mono',monospace;font-size:0.76rem;background:var(--bg);padding:0.1rem 0.35rem;border-radius:3px;color:var(--accent)">SKILL.md</code>). 
+        When an agent is invoked, the Skill's content is injected into that agent's context to guide its behavior. Unlike prompt instructions, Skills are externalized as files — keeping the main conversation context clean is the key.
+      </div>
+
+      <div class="skills-list">
+        <!-- Supervisor -->
+        <div class="skill-item supervisor">
+          <div class="skill-header">
+            <span class="skill-icon">🎛️</span>
+            <div class="skill-meta">
+              <span class="skill-name">solve_coding_test</span>
+              <span class="skill-role">Supervisor</span>
+            </div>
+          </div>
+          <div class="skill-desc">
+            The top-level Skill that orchestrates the entire solving loop. <code>problem.md</code> exists, then manages the <strong>Plan → Write → Validate → Wait for Judge → Reflect</strong> loop from trial 1 up to 10 attempts.
+            Key rule: Every sub-Skill invocation must be dispatched via <strong style="color:var(--purple)">fresh subagent (Task tool)</strong> — never reusing previous sub-agents, creating a new agent for each trial even for the same Skill, keeping the main context small. Judging is human-in-the-loop: request the user to submit, then wait for the verdict (Pass/WA/TLE/MLE/RE).
+          </div>
+        </div>
+
+        <!-- get_coding_problem -->
+        <div class="skill-item">
+          <div class="skill-header">
+            <span class="skill-icon">🧩</span>
+            <div class="skill-meta">
+              <span class="skill-name">get_coding_problem</span>
+              <span class="skill-role">Problem Fetch</span>
+            </div>
+          </div>
+          <div class="skill-desc">Uses Playwright MCP to navigate the SWEA website and explore problem pages. Extracts the problem description, I/O format, constraints, and sample test cases, saving them as <code>problem.md</code>. The next agent only needs to read this file.</div>
+        </div>
+
+        <!-- plan_coding_problem -->
+        <div class="skill-item">
+          <div class="skill-header">
+            <span class="skill-icon">📝</span>
+            <div class="skill-meta">
+              <span class="skill-name">plan_coding_problem</span>
+              <span class="skill-role">Plan</span>
+            </div>
+          </div>
+          <div class="skill-desc"><code>problem.md</code> and designs the algorithm. Never writes code — only organizes the thought process: problem analysis → key observations → algorithm selection with justification → pseudocode-level steps → edge cases → complexity analysis, saved as <code>plan_{trial}.md</code>. Also verifies feasibility against PyPy 3.7 time/memory constraints.</div>
+        </div>
+
+        <!-- write_coding_problem -->
+        <div class="skill-item">
+          <div class="skill-header">
+            <span class="skill-icon">💻</span>
+            <div class="skill-meta">
+              <span class="skill-name">write_coding_problem</span>
+              <span class="skill-role">Write</span>
+            </div>
+          </div>
+          <div class="skill-desc">Reads <code>problem.md</code> and <code>plan_{trial}.md</code>, then implements the Python 3.7 (PyPy) code. Faithfully follows the plan's algorithm while conforming to the SWEA I/O pattern (<code>T = int(input())</code> loop). Saves the completed code as <code>solution_{trial}.py</code>, then runs sample tests and iterates fixes until they pass.</div>
+        </div>
+
+        <!-- validate_coding_problem -->
+        <div class="skill-item">
+          <div class="skill-header">
+            <span class="skill-icon">🛡️</span>
+            <div class="skill-meta">
+              <span class="skill-name">validate_coding_problem</span>
+              <span class="skill-role">Validate</span>
+            </div>
+          </div>
+          <div class="skill-desc">Statically validates code from the Write agent before submission. Checks banned imports(<code>sys</code>, <code>io</code>, <code>os</code>), output format, Python 3.7 syntax compatibility, etc. to prevent RE/WA before submission. An intermediate step added in the 3rd architecture.</div>
+        </div>
+
+        <!-- reflect_coding_problem -->
+        <div class="skill-item">
+          <div class="skill-header">
+            <span class="skill-icon">🔍</span>
+            <div class="skill-meta">
+              <span class="skill-name">reflect_coding_problem</span>
+              <span class="skill-role">Reflect</span>
+            </div>
+          </div>
+          <div class="skill-desc">Triggered on judge failure. <code>problem.md</code> and <strong>the full history of all previous plans and solutions</strong> to avoid repeating mistakes. Adjusts diagnostic focus by verdict type (WA/TLE/MLE/RE), analyzing what went wrong → why → what the previous plan missed, then generates a revised <code>plan_{next_trial}.md</code>. Does not write code.</div>
+        </div>
+      </div>
+    </div>
+    <div class="lesson-pair">
+      <div class="lesson-card">
+        <div class="lesson-from-to">1st → 2nd Lesson</div>
+        <div class="lesson-title">"Separate"</div>
+        <div class="lesson-body">
+          After single agent failure, separated into sub-agents. Defined agents with prompt instructions and transferred info via summaries, but fine-grained algorithmic details were lost.
+        </div>
+      </div>
+      <div class="lesson-card">
+        <div class="lesson-from-to">2nd → 3rd Lesson</div>
+        <div class="lesson-title">"Switch to Skills"</div>
+        <div class="lesson-body">
+          Replaced prompt instructions with <strong style="color:var(--accent)">Claude Skills (SKILL.md)</strong>. Switched both agent behavior definitions and inter-agent info transfer to file-based, simultaneously solving context rot and information loss — the essence of context engineering.
+        </div>
+      </div>
+    </div>
+
+    <div class="insight-quote">
+      <p>
+        If <span class="em">prompt engineering</span> is the question of "what to tell the model,"<br>
+        then <span class="em">context engineering</span> is the question of "how to structure the information provided to the model."<br><br>
+        Defining agents via prompt instructions pollutes the context with the instructions themselves.
+        <span class="em">Claude Skills</span> externalize agent behavior definitions into structured files, fundamentally solving this problem.<br><br>
+        Even with the same model, same problems, and same Reasoning Effort, changing only the context structure fundamentally changes the results. Passing all 10/10 problems including D7(VH) difficulty is empirical proof of this principle.
+      </p>
+    </div>
+  </section>
+
+  <!-- RESULTS TABLE -->
+  <section>
+    <div class="section-label">Results Overview</div>
+    <h2 class="section-title">Results Overview</h2>
+
+    <div class="results-table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Problem</th>
+            <th>Title</th>
+            <th>Difficulty</th>
+            <th>Acceptance <span style="font-size:0.6rem;opacity:0.7;font-weight:400;letter-spacing:0.02em">(incl. our solve)</span></th>
+            <th>Submissions</th>
+            <th>Result</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="problem-id">23009</span> <span style="font-family:'JetBrains Mono',monospace;font-size:0.7rem;color:var(--text-muted)">VH2505</span></td>
+            <td style="color:var(--text-bright)">Count of Consecutive Overlapping Intervals</td>
+            <td><span class="diff-badge diff-d7">D7 · VH</span></td>
+            <td class="accuracy">6.67%</td>
+            <td>2</td>
+            <td><span class="pass-badge">✓ Pass</span></td>
+          </tr>
+          <tr>
+            <td><span class="problem-id">24424</span> <span style="font-family:'JetBrains Mono',monospace;font-size:0.7rem;color:var(--text-muted)">VH2521</span></td>
+            <td style="color:var(--text-bright)">Correct Path</td>
+            <td><span class="diff-badge diff-d6">D6 · VH</span></td>
+            <td class="accuracy">23.53%</td>
+            <td>1</td>
+            <td><span class="pass-badge">✓ Pass</span></td>
+          </tr>
+          <tr>
+            <td><span class="problem-id">24529</span> <span style="font-family:'JetBrains Mono',monospace;font-size:0.7rem;color:var(--text-muted)">VH2525</span></td>
+            <td style="color:var(--text-bright)">Snail on a Grid</td>
+            <td><span class="diff-badge diff-d6">D6 · VH</span></td>
+            <td class="accuracy">7.69%</td>
+            <td>2</td>
+            <td><span class="pass-badge">✓ Pass</span></td>
+          </tr>
+          <tr>
+            <td><span class="problem-id">24702</span> <span style="font-family:'JetBrains Mono',monospace;font-size:0.7rem;color:var(--text-muted)">VH2530</span></td>
+            <td style="color:var(--text-bright)">Powers of 2</td>
+            <td><span class="diff-badge diff-d7">D7 · VH</span></td>
+            <td class="accuracy">30.00%</td>
+            <td>3</td>
+            <td><span class="pass-badge">✓ Pass</span></td>
+          </tr>
+          <tr>
+            <td><span class="problem-id">25333</span> <span style="font-family:'JetBrains Mono',monospace;font-size:0.7rem;color:var(--text-muted)">VH2533</span></td>
+            <td style="color:var(--text-bright)">Synergy Effect</td>
+            <td><span class="diff-badge diff-d7">D7 · VH</span></td>
+            <td class="accuracy">33.33%</td>
+            <td>2</td>
+            <td><span class="pass-badge">✓ Pass</span></td>
+          </tr>
+          <tr>
+            <td><span class="problem-id">25478</span> <span style="font-family:'JetBrains Mono',monospace;font-size:0.7rem;color:var(--text-muted)">VH2537</span></td>
+            <td style="color:var(--text-bright)">Receiver Assignment</td>
+            <td><span class="diff-badge diff-d7">D7 · VH</span></td>
+            <td class="accuracy">7.41%</td>
+            <td>4</td>
+            <td><span class="pass-badge">✓ Pass</span></td>
+          </tr>
+          <tr>
+            <td><span class="problem-id">25660</span> <span style="font-family:'JetBrains Mono',monospace;font-size:0.7rem;color:var(--text-muted)">VH2540</span></td>
+            <td style="color:var(--text-bright)">Santa's Gifts</td>
+            <td><span class="diff-badge diff-d7">D7 · VH</span></td>
+            <td class="accuracy">4.49%</td>
+            <td>3</td>
+            <td><span class="pass-badge">✓ Pass</span></td>
+          </tr>
+          <tr>
+            <td><span class="problem-id">25699</span> <span style="font-family:'JetBrains Mono',monospace;font-size:0.7rem;color:var(--text-muted)">VH2543</span></td>
+            <td style="color:var(--text-bright)">Tiling</td>
+            <td><span class="diff-badge diff-d7">D7 · VH</span></td>
+            <td class="accuracy">16.67%</td>
+            <td>1</td>
+            <td><span class="pass-badge">✓ Pass</span></td>
+          </tr>
+          <tr>
+            <td><span class="problem-id">25841</span> <span style="font-family:'JetBrains Mono',monospace;font-size:0.7rem;color:var(--text-muted)">VH2601</span></td>
+            <td style="color:var(--text-bright)">Sister City Pairing</td>
+            <td><span class="diff-badge diff-d7">D7 · VH</span></td>
+            <td class="accuracy">25.53%</td>
+            <td>2</td>
+            <td><span class="pass-badge">✓ Pass</span></td>
+          </tr>
+          <tr>
+            <td><span class="problem-id">26013</span> <span style="font-family:'JetBrains Mono',monospace;font-size:0.7rem;color:var(--text-muted)">VH2602</span></td>
+            <td style="color:var(--text-bright)">Bishop</td>
+            <td><span class="diff-badge diff-d7">D7 · VH</span></td>
+            <td class="accuracy">25.00%</td>
+            <td>2</td>
+            <td><span class="pass-badge">✓ Pass</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- PROBLEM DETAILS -->
+  <section>
+    <div class="section-label">Problem Details</div>
+    <h2 class="section-title">Detailed Problem Solutions</h2>
+
+    <!-- 23009 -->
+    <div class="problem-section fade-in">
+      <div class="problem-header">
+        <div>
+          <div class="problem-num">#23009 <span style="color:var(--text-muted)">/ VH2505</span> · D7(VH) · Acc. 6.67%</div>
+          <div class="problem-name">Count of Consecutive Overlapping Intervals</div>
+        </div>
+        <div class="problem-algo">Substitution Decomposition Tree + O(N log N)</div>
+      </div>
+      <div class="problem-idea">
+        <h4>Solution Approach</h4>
+        <ul>
+          <li>Consecutive intervals of permutations structured as a substitution decomposition tree</li>
+          <li>Crossing pairs occur only at linear nodes (ascending/descending)</li>
+          <li>O(k log k) computation via prefix sums of child sizes + binary search at each linear node</li>
+        </ul>
+      </div>
+      <div class="trial fail-trial">
+        <div class="trial-header">Trial 1 — MLE (10/12 TC)</div>
+        <div class="trial-cause">
+          <strong>Cause:</strong> During linear node flattening in the node pool architecture, old child lists remained unreleased in the pool. Worst case: O(N²) references accumulated in pool_children → exceeded 256MB.
+        </div>
+      </div>
+      <div class="trial pass-trial">
+        <div class="trial-header">Trial 2 — Passed ✓</div>
+        <div class="trial-cause">
+          <strong>Fix:</strong> Switched to inline processing. When absorbing linear nodes into parent, immediately compute contribution and discard children_sizes (finalize-on-absorption). Maintains O(N) total memory.
+        </div>
+      </div>
+    </div>
+
+    <!-- 24424 -->
+    <div class="problem-section fade-in">
+      <div class="problem-header">
+        <div>
+          <div class="problem-num">#24424 <span style="color:var(--text-muted)">/ VH2521</span> · D6(VH) · Acc. 23.53%</div>
+          <div class="problem-name">Correct Path</div>
+        </div>
+        <div class="problem-algo">CFL-Reachability Dijkstra</div>
+      </div>
+      <div class="problem-idea">
+        <h4>Solution Approach</h4>
+        <ul>
+          <li>Context-free language constrained shortest path on a CNF grammar and directed graph</li>
+          <li>State: (nonterminal X, source u, dest v) — max 26³ = 17,576 states</li>
+          <li>Terminal rules seed the heap with distance-1 states; binary rules join on state confirmation</li>
+        </ul>
+      </div>
+      <div class="trial pass-trial">
+        <div class="trial-header">Trial 1 — Passed ✓</div>
+        <div class="trial-cause">
+          State space of 17,576 is small enough for PyPy. Passed on first attempt.
+        </div>
+      </div>
+    </div>
+
+    <!-- 24529 -->
+    <div class="problem-section fade-in">
+      <div class="problem-header">
+        <div>
+          <div class="problem-num">#24529 <span style="color:var(--text-muted)">/ VH2525</span> · D6(VH) · Acc. 7.69%</div>
+          <div class="problem-name">Snail on a Grid</div>
+        </div>
+        <div class="problem-algo">Greedy + Bigint Bitset Knapsack DP</div>
+      </div>
+      <div class="problem-idea">
+        <h4>Solution Approach</h4>
+        <ul>
+          <li>Place the two smallest values at mandatory waypoints (1,1) and (2,N)</li>
+          <li>Split remaining 2(N-1) values into two groups F (top row), L (bottom row) → minimize sum difference</li>
+          <li>F ascending, L descending → mountain arrangement guarantees window sums</li>
+          <li>Balanced partition via Python bigint bitset knapsack DP</li>
+        </ul>
+      </div>
+      <div class="trial fail-trial">
+        <div class="trial-header">Trial 1 — WA (18/47 TC)</div>
+        <div class="trial-cause">
+          <strong>Cause:</strong> L group sorted ascending → smallest values from both sides concentrated at transition windows.
+        </div>
+      </div>
+      <div class="trial pass-trial">
+        <div class="trial-header">Trial 2 — Passed ✓</div>
+        <div class="trial-cause">
+          <strong>Fix:</strong> <code style="background:var(--bg);padding:0.15rem 0.4rem;border-radius:3px;font-family:'JetBrains Mono',monospace;font-size:0.8rem;color:var(--accent)">L.sort(reverse=True)</code> — one-line fix.
+        </div>
+      </div>
+    </div>
+
+    <!-- 24702 -->
+    <div class="problem-section fade-in">
+      <div class="problem-header">
+        <div>
+          <div class="problem-num">#24702 <span style="color:var(--text-muted)">/ VH2530</span> · D7(VH) · Acc. 30.00%</div>
+          <div class="problem-name">Powers of 2</div>
+        </div>
+        <div class="problem-algo">p-adic Lifting Discrete Log</div>
+      </div>
+      <div class="problem-idea">
+        <h4>Solution Approach</h4>
+        <ul>
+          <li>Construct target value T via CRT to embed X in the last K digits of f(N) = 2^N mod 10^K</li>
+          <li>2 is a primitive root mod 5^K → discrete log always exists</li>
+          <li>Hensel-style p-adic lifting extracts the log in O(K) steps</li>
+        </ul>
+      </div>
+      <div class="trial fail-trial">
+        <div class="trial-header">Trial 1 — RE</div>
+        <div class="trial-cause"><strong>Cause:</strong> <code style="background:var(--bg);padding:0.15rem 0.4rem;border-radius:3px;font-family:'JetBrains Mono',monospace;font-size:0.8rem;color:var(--red)">import io</code> banned in SWEA environment.</div>
+      </div>
+      <div class="trial fail-trial">
+        <div class="trial-header">Trial 2 — WA (4,400/12,190 TC)</div>
+        <div class="trial-cause"><strong>Cause:</strong> With K=71, N values grew to ~10^49, likely exceeding the judge's 64-bit integer range.</div>
+      </div>
+      <div class="trial pass-trial">
+        <div class="trial-header">Trial 3 — Passed ✓</div>
+        <div class="trial-cause"><strong>Fix:</strong> Reduced K from 71 to 20. Max N ~1.53×10^14, fitting within 64-bit range.</div>
+      </div>
+    </div>
+
+    <!-- 25333 -->
+    <div class="problem-section fade-in">
+      <div class="problem-header">
+        <div>
+          <div class="problem-num">#25333 <span style="color:var(--text-muted)">/ VH2533</span> · D7(VH) · Acc. 33.33%</div>
+          <div class="problem-name">Synergy Effect</div>
+        </div>
+        <div class="problem-algo">Meet-in-the-middle + Matrix-Tree</div>
+      </div>
+      <div class="problem-idea">
+        <h4>Solution Approach</h4>
+        <ul>
+          <li>Compute synergy based on "isolation" of meaningful nodes in N-node labeled trees</li>
+          <li>g(t): Closed-form via equi-partition Laplacian</li>
+          <li>Inclusion-exclusion to convert "exactly isolated" → "at least isolated"</li>
+          <li>Meet-in-the-middle for weighted subset-sum count (m ≤ 40)</li>
+        </ul>
+      </div>
+      <div class="trial fail-trial">
+        <div class="trial-header">Trial 1 — TLE</div>
+        <div class="trial-cause"><strong>Cause:</strong> Iterating all B-subsets for each (r, rA, rB) combination → ~10^8-10^9 iterations.</div>
+      </div>
+      <div class="trial pass-trial">
+        <div class="trial-header">Trial 2 — Passed ✓</div>
+        <div class="trial-cause"><strong>Fix:</strong> Unified g(t)×H(t)×N_r into a single weighted subset-sum query. Suffix weighted-sum array reduces to one binary search per B-subset.</div>
+      </div>
+    </div>
+
+    <!-- 25478 -->
+    <div class="problem-section fade-in">
+      <div class="problem-header">
+        <div>
+          <div class="problem-num">#25478 <span style="color:var(--text-muted)">/ VH2537</span> · D7(VH) · Acc. 7.41%</div>
+          <div class="problem-name">Receiver Assignment</div>
+        </div>
+        <div class="problem-algo">Proper Interval Graph + Interval DP</div>
+      </div>
+      <div class="problem-idea">
+        <h4>Solution Approach</h4>
+        <ul>
+          <li>Place N receivers in X slots; communicate if distance ≤ D — count valid placements</li>
+          <li>Proper interval graph structure + LBFS+ canonical ordering extraction</li>
+          <li>Interval DP with O(2^D) states to count placements per component</li>
+          <li>Twin class symmetry handling, then cross-component convolution for the final answer</li>
+        </ul>
+      </div>
+      <div class="trial fail-trial">
+        <div class="trial-header">Trial 1 — MLE</div>
+        <div class="trial-cause"><strong>Cause:</strong> 2^N bitmask DP with N=50 → 2^50 states → memory exceeded.</div>
+      </div>
+      <div class="trial fail-trial">
+        <div class="trial-header">Trial 2 — WA (93/140 TC)</div>
+        <div class="trial-cause"><strong>Cause:</strong> Simple LBFS failed to guarantee a valid proper interval ordering.</div>
+      </div>
+      <div class="trial fail-trial">
+        <div class="trial-header">Trial 3 — WA (139/140 TC)</div>
+        <div class="trial-cause"><strong>Cause:</strong> LBFS+ tiebreaking failed for N≥20. Ordering verification passed but interval DP constraints unsatisfied.</div>
+      </div>
+      <div class="trial pass-trial">
+        <div class="trial-header">Trial 4 — Passed ✓</div>
+        <div class="trial-cause"><strong>Fix:</strong> Implemented priority-based LBFS+ with refined partition refinement. Passed 4,211 exhaustive stress tests.</div>
+      </div>
+    </div>
+
+    <!-- 25660 -->
+    <div class="problem-section fade-in">
+      <div class="problem-header">
+        <div>
+          <div class="problem-num">#25660 <span style="color:var(--text-muted)">/ VH2540</span> · D7(VH) · Acc. 4.49%</div>
+          <div class="problem-name">Santa's Gifts</div>
+        </div>
+        <div class="problem-algo">Popular Matching + Hopcroft-Karp</div>
+      </div>
+      <div class="problem-idea">
+        <h4>Solution Approach</h4>
+        <ul>
+          <li>Assign N gifts to N children — find a "popular matching" where no majority prefers another assignment</li>
+          <li>Two-phase matching: first-choice gift group (A) and non-S1 top gift group (B)</li>
+          <li>Deterministic cascade adds conflicting gifts to S1 simultaneously, preventing exponential branching</li>
+          <li>Hopcroft-Karp bipartite matching to verify S1 coverage</li>
+        </ul>
+      </div>
+      <div class="trial fail-trial">
+        <div class="trial-header">Trial 1 — WA (0/77 TC)</div>
+        <div class="trial-cause"><strong>Cause:</strong> Exponential backtracking explosion. When k children share the same first choice, 2^k branches occur.</div>
+      </div>
+      <div class="trial fail-trial">
+        <div class="trial-header">Trial 2 — WA (0/77 TC · output format error)</div>
+        <div class="trial-cause"><strong>Cause:</strong> Incorrect <code style="background:var(--bg);padding:0.15rem 0.4rem;border-radius:3px;font-family:'JetBrains Mono',monospace;font-size:0.8rem;color:var(--red)">#T</code> prefix included.</div>
+      </div>
+      <div class="trial pass-trial">
+        <div class="trial-header">Trial 2 (fix) — Passed ✓</div>
+        <div class="trial-cause"><strong>Fix:</strong> Deterministic cascade + bipartite matching + output format fix → 77/77 passed.</div>
+      </div>
+    </div>
+
+    <!-- 25699 -->
+    <div class="problem-section fade-in">
+      <div class="problem-header">
+        <div>
+          <div class="problem-num">#25699 <span style="color:var(--text-muted)">/ VH2543</span> · D7(VH) · Acc. 16.67%</div>
+          <div class="problem-name">Tiling</div>
+        </div>
+        <div class="problem-algo">Lattice Periodicity + Hermite Normal Form</div>
+      </div>
+      <div class="problem-idea">
+        <h4>Solution Approach</h4>
+        <ul>
+          <li>Given H×W observation window from translational tiling of a single polyomino → find minimum tile area</li>
+          <li>Tiling corresponds to a 2D integer lattice; tile area = lattice determinant</li>
+          <li>HNF basis (a,0), (c,d) with O(H²W²) precomputed valid translation table</li>
+          <li>Sequential enumeration from area 1, return first valid HNF</li>
+        </ul>
+      </div>
+      <div class="trial pass-trial">
+        <div class="trial-header">Trial 1 — Passed ✓</div>
+        <div class="trial-cause">Solved this 16.67% acceptance rate problem on the first attempt.</div>
+      </div>
+    </div>
+
+    <!-- 25841 -->
+    <div class="problem-section fade-in">
+      <div class="problem-header">
+        <div>
+          <div class="problem-num">#25841 <span style="color:var(--text-muted)">/ VH2601</span> · D7(VH) · Acc. 25.53%</div>
+          <div class="problem-name">Sister City Pairing</div>
+        </div>
+        <div class="problem-algo">Kruskal Reconstruction Tree + LCA</div>
+      </div>
+      <div class="problem-idea">
+        <h4>Solution Approach</h4>
+        <ul>
+          <li>Two vehicles moving simultaneously in opposite directions on a weighted graph — analyze swap conditions</li>
+          <li>"Parking space" for yielding exists when the connected component is not a simple path</li>
+          <li>Kruskal reconstruction tree tracks non-path events, subtree_min_np propagated bottom-up</li>
+          <li>Query (X,Y) finds LCA and returns ans_weight(LCA)</li>
+        </ul>
+      </div>
+      <div class="trial fail-trial">
+        <div class="trial-header">Trial 1 — RE</div>
+        <div class="trial-cause"><strong>Cause:</strong> <code style="background:var(--bg);padding:0.15rem 0.4rem;border-radius:3px;font-family:'JetBrains Mono',monospace;font-size:0.8rem;color:var(--red)">import io</code>, <code style="background:var(--bg);padding:0.15rem 0.4rem;border-radius:3px;font-family:'JetBrains Mono',monospace;font-size:0.8rem;color:var(--red)">import os</code> banned in SWEA environment.</div>
+      </div>
+      <div class="trial pass-trial">
+        <div class="trial-header">Trial 2 — Passed ✓</div>
+        <div class="trial-cause"><strong>Fix:</strong> Replaced with input() / print(). No algorithm changes.</div>
+      </div>
+    </div>
+
+    <!-- 26013 -->
+    <div class="problem-section fade-in">
+      <div class="problem-header">
+        <div>
+          <div class="problem-num">#26013 <span style="color:var(--text-muted)">/ VH2602</span> · D7(VH) · Acc. 25.00%</div>
+          <div class="problem-name">Bishop</div>
+        </div>
+        <div class="problem-algo">Ferrers Board Factorization + NTT</div>
+      </div>
+      <div class="problem-idea">
+        <h4>Solution Approach</h4>
+        <ul>
+          <li>Count non-attacking bishop placements on N×N board for k=1..2N-1 (mod 998244353)</li>
+          <li>Diagonal parity decomposition into two independent groups → each becomes a Ferrers board rook placement problem</li>
+          <li>Ferrers board factorization theorem decomposes the rook polynomial into a product of linear factors</li>
+          <li>Finite differences + NTT convolution for O(N log N) computation</li>
+        </ul>
+      </div>
+      <div class="trial fail-trial">
+        <div class="trial-header">Trial 1 — TLE</div>
+        <div class="trial-cause"><strong>Cause:</strong> O(N²) DP. ~10^10 operations at N=100,000, exceeding the 30-second limit.</div>
+      </div>
+      <div class="trial pass-trial">
+        <div class="trial-header">Trial 2 — Passed ✓</div>
+        <div class="trial-cause"><strong>Fix:</strong> Ferrers board factorization + NTT for O(N log N) optimization.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ENVIRONMENT CONSTRAINTS -->
+  <section>
+    <div class="section-label">Environment</div>
+    <h2 class="section-title">SWEA Judge Environment Constraints</h2>
+
+    <div class="constraint-list">
+      <div class="constraint-item">
+        <span class="constraint-icon">🚫</span>
+        <div>
+          <span class="constraint-code">import sys</span>
+          <span class="constraint-text"> — causes Runtime Error. <code style="font-family:'JetBrains Mono',monospace;color:var(--accent)">input()</code>  only.</span>
+        </div>
+      </div>
+      <div class="constraint-item">
+        <span class="constraint-icon">🚫</span>
+        <div>
+          <span class="constraint-code">import io</span>
+          <span class="constraint-text"> — causes Runtime Error. 24702, 25841.</span>
+        </div>
+      </div>
+      <div class="constraint-item">
+        <span class="constraint-icon">🚫</span>
+        <div>
+          <span class="constraint-code">import os</span>
+          <span class="constraint-text"> — causes Runtime Error. 25841.</span>
+        </div>
+      </div>
+      <div class="constraint-item">
+        <span class="constraint-icon">📤</span>
+        <div>
+          <span class="constraint-text">Output: print per case inside loop (buffered batch output also works)</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAILURE TYPES -->
+  <section>
+    <div class="section-label">Failure Analysis</div>
+    <h2 class="section-title">Failure Type Classification</h2>
+
+    <div class="failure-grid">
+      <div class="failure-row">
+        <div><span class="failure-type mle">MLE</span></div>
+        <div><div class="failure-label">Problem</div><div class="failure-value">#23009 <span style="font-family:'JetBrains Mono',monospace;font-size:0.7rem;color:var(--text-muted);margin-left:0.3rem">VH2505</span></div></div>
+        <div><div class="failure-label">Cause</div><div class="failure-value">Node pool O(N²) memory accumulation</div></div>
+        <div><div class="failure-label">Fix</div><div class="failure-value">Inline processing, finalize-on-absorption</div></div>
+      </div>
+      <div class="failure-row">
+        <div><span class="failure-type mle">MLE</span></div>
+        <div><div class="failure-label">Problem</div><div class="failure-value">#25478 <span style="font-family:'JetBrains Mono',monospace;font-size:0.7rem;color:var(--text-muted);margin-left:0.3rem">VH2537</span></div></div>
+        <div><div class="failure-label">Cause</div><div class="failure-value">2^N bitmask DP (N=50)</div></div>
+        <div><div class="failure-label">Fix</div><div class="failure-value">Proper interval ordering + O(2^D) interval DP</div></div>
+      </div>
+      <div class="failure-row">
+        <div><span class="failure-type wa">WA</span></div>
+        <div><div class="failure-label">Problem</div><div class="failure-value">#24529 <span style="font-family:'JetBrains Mono',monospace;font-size:0.7rem;color:var(--text-muted);margin-left:0.3rem">VH2525</span></div></div>
+        <div><div class="failure-label">Cause</div><div class="failure-value">L sort direction error (asc→desc)</div></div>
+        <div><div class="failure-label">Fix</div><div class="failure-value">L.sort(reverse=True)</div></div>
+      </div>
+      <div class="failure-row">
+        <div><span class="failure-type wa">WA</span></div>
+        <div><div class="failure-label">Problem</div><div class="failure-value">#24702 <span style="font-family:'JetBrains Mono',monospace;font-size:0.7rem;color:var(--text-muted);margin-left:0.3rem">VH2530</span></div></div>
+        <div><div class="failure-label">Cause</div><div class="failure-value">K=71 → N too large (64-bit overflow)</div></div>
+        <div><div class="failure-label">Fix</div><div class="failure-value">Reduced K to 20</div></div>
+      </div>
+      <div class="failure-row">
+        <div><span class="failure-type wa">WA</span></div>
+        <div><div class="failure-label">Problem</div><div class="failure-value">#25478 <span style="font-family:'JetBrains Mono',monospace;font-size:0.7rem;color:var(--text-muted);margin-left:0.3rem">VH2537</span></div></div>
+        <div><div class="failure-label">Cause</div><div class="failure-value">LBFS/LBFS+ tiebreaking inadequate</div></div>
+        <div><div class="failure-label">Fix</div><div class="failure-value">Priority-based LBFS+ + partition refinement</div></div>
+      </div>
+      <div class="failure-row">
+        <div><span class="failure-type wa">WA</span></div>
+        <div><div class="failure-label">Problem</div><div class="failure-value">#25660 <span style="font-family:'JetBrains Mono',monospace;font-size:0.7rem;color:var(--text-muted);margin-left:0.3rem">VH2540</span></div></div>
+        <div><div class="failure-label">Cause</div><div class="failure-value">Exponential backtracking + output format error</div></div>
+        <div><div class="failure-label">Fix</div><div class="failure-value">Deterministic cascade + format fix</div></div>
+      </div>
+      <div class="failure-row">
+        <div><span class="failure-type re">RE</span></div>
+        <div><div class="failure-label">Problem</div><div class="failure-value">#24702 <span style="font-family:'JetBrains Mono',monospace;font-size:0.7rem;color:var(--text-muted);margin-left:0.3rem">VH2530</span></div></div>
+        <div><div class="failure-label">Cause</div><div class="failure-value">import io banned</div></div>
+        <div><div class="failure-label">Fix</div><div class="failure-value">Use input() / print()</div></div>
+      </div>
+      <div class="failure-row">
+        <div><span class="failure-type re">RE</span></div>
+        <div><div class="failure-label">Problem</div><div class="failure-value">#25841 <span style="font-family:'JetBrains Mono',monospace;font-size:0.7rem;color:var(--text-muted);margin-left:0.3rem">VH2601</span></div></div>
+        <div><div class="failure-label">Cause</div><div class="failure-value">import io, import os banned</div></div>
+        <div><div class="failure-label">Fix</div><div class="failure-value">Use input() / print()</div></div>
+      </div>
+      <div class="failure-row">
+        <div><span class="failure-type tle">TLE</span></div>
+        <div><div class="failure-label">Problem</div><div class="failure-value">#25333 <span style="font-family:'JetBrains Mono',monospace;font-size:0.7rem;color:var(--text-muted);margin-left:0.3rem">VH2533</span></div></div>
+        <div><div class="failure-label">Cause</div><div class="failure-value">per-(r,rA,rB) iteration ~10⁹</div></div>
+        <div><div class="failure-label">Fix</div><div class="failure-value">Precomputed weights + suffix sum array</div></div>
+      </div>
+      <div class="failure-row">
+        <div><span class="failure-type tle">TLE</span></div>
+        <div><div class="failure-label">Problem</div><div class="failure-value">#26013 <span style="font-family:'JetBrains Mono',monospace;font-size:0.7rem;color:var(--text-muted);margin-left:0.3rem">VH2602</span></div></div>
+        <div><div class="failure-label">Cause</div><div class="failure-value">O(N²) DP, N=100K</div></div>
+        <div><div class="failure-label">Fix</div><div class="failure-value">Ferrers board factorization + NTT O(N log N)</div></div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    SWEA Problem Solving Report · Claude Opus 4.6 · Context Engineering · 2026-02-25 — 2026-03-01
+  </footer>
+
+</div>
+
+<script>
+// Intersection Observer for scroll animations
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.style.opacity = '1';
+      entry.target.style.transform = 'translateY(0)';
+    }
+  });
+}, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+
+document.querySelectorAll('.problem-section, .principle-card, .failure-row, .arch-card').forEach(el => {
+  el.style.opacity = '0';
+  el.style.transform = 'translateY(20px)';
+  el.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+  observer.observe(el);
+});
+</script>
+</body>
+</html>
