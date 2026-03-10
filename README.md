@@ -33,7 +33,7 @@ Or simply ask in natural language: *"Solve problem 24399 end to end."*
 
 ## How It Works
 
-The solver orchestrates a **plan → write → stress test → validate → submit → reflect** loop, with the human submitting to the online judge and reporting the verdict back.
+The solver orchestrates a **plan → write → stress test → validate → submit → reflect** loop, with the human submitting to the online judge and reporting the verdict back. Each skill runs as a separate sub-agent, keeping context isolated and allowing the orchestrator to delegate work cleanly.
 
 ### Flow Diagram
 
