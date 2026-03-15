@@ -78,7 +78,7 @@ Choose patterns based on the algorithm type:
 Run each test file through the runner script:
 
 ```
-uv run --python 3.10 {skill_dir}/scripts/stress_test.py $0 $1 {test_file}
+uv run --python 3.10 .gemini/skills/stress-testing/scripts/stress_test.py $0 $1 {test_file}
 ```
 
 Where `{test_file}` is the **absolute path** to each of the 3 generated test files.

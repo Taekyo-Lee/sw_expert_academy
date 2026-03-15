@@ -7,10 +7,7 @@ An AI-powered solve loop for [SW Expert Academy](https://swexpertacademy.com/) c
 Copy the example `.env` and fill in your values:
 
 ```bash
-# Replace <skill_root> with your agent's skill directory
-# (e.g., .claude/skills, .gemini/skills, .roo/skills)
-cp <skill_root>/fetching-problem/references/env.example \
-   <skill_root>/fetching-problem/references/.env
+cp env.example .env
 ```
 
 | Variable | Description |
@@ -36,7 +33,7 @@ Or simply ask in natural language: *"Solve problem 24399 end to end."*
 
 ## How It Works
 
-The solver orchestrates a **plan → write → stress test → validate → submit → reflect** loop, with the human submitting to the online judge and reporting the verdict back.
+The solver orchestrates a **plan → write → stress test → validate → submit → reflect** loop, with the human submitting to the online judge and reporting the verdict back. Each skill runs as a separate sub-agent, keeping context isolated and allowing the orchestrator to delegate work cleanly.
 
 ### Flow Diagram
 
@@ -111,6 +108,8 @@ This means each trial number represents one actual submission to the judge.
 ## Project Layout
 
 ```
+.env                                    # Credentials (git-ignored)
+env.example                             # Template for .env
 problem_bank/{problem_id}/
   problem.md                          # Problem statement
   progress.md                         # Solve loop progress log

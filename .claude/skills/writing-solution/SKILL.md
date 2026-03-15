@@ -55,7 +55,7 @@ Save the code locally:
 Run the solution against the sample test cases from `problem.md`:
 
 ```
-uv run --python 3.10 {skill_dir}/scripts/test_solution.py $0 {trial_number}
+uv run --python 3.10 .claude/skills/writing-solution/scripts/test_solution.py $0 {trial_number}
 ```
 
 - If the test **passes**, you're done.

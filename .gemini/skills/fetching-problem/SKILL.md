@@ -14,8 +14,7 @@ Fetch problem **$0** from SW Expert Academy using Playwright MCP and save it as 
 
 ## Prerequisites: Configuration
 
-Read configuration from the `.env` file at:
-`@./references/.env`
+Read configuration from the project root `.env` file (see `env.example` for the template).
 
 The file contains `SWEA_BASE_URL`, `SWEA_ID`, and `SWEA_PW`. Use `SWEA_BASE_URL` as `{base_url}` throughout this skill (all URLs below use this prefix). Never hardcode credentials or URLs.
 
